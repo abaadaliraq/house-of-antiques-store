@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Eye, EyeOff } from "lucide-react";
+import { ShoppingBag, Eye, EyeOff } from 'lucide-react'
 import { formatPrice } from '../../../lib/format'
 import { addToCart, getCartCount } from '../../../lib/cart'
 import styles from './ProductPage.module.css'
@@ -11,33 +11,48 @@ type ProductRow = {
   id: string
   slug: string
   sku: string | null
+
   name_ar: string | null
   name_en: string | null
   name_ku: string | null
+
   description_ar: string | null
   description_en: string | null
   description_ku: string | null
+
   price_amount: number
   currency_code: string
+
   featured_image: string | null
+
   is_sensitive: boolean | null
   is_auction: boolean | null
+
+  status: string | null
+  is_available: boolean | null
+
   artist_name: string | null
   year_text: string | null
+
   material_ar: string | null
   material_en: string | null
   material_ku: string | null
+
   condition_ar: string | null
   condition_en: string | null
   condition_ku: string | null
+
   dimensions_ar: string | null
   dimensions_en: string | null
   dimensions_ku: string | null
+
   period_ar: string | null
   period_en: string | null
   period_ku: string | null
+
   origin_country: string | null
   signed: boolean | null
+
   category_slug: string | null
 }
 
@@ -100,6 +115,12 @@ function formatCategory(category?: string | null) {
     .replace(/\b\w/g, (m) => m.toUpperCase())
 }
 
+function getStatusLabel(status?: string | null, isAvailable?: boolean | null) {
+  if (status === 'sold' || isAvailable === false) return 'مباعة'
+  if (status === 'reserved') return 'محجوزة'
+  return 'متوفرة'
+}
+
 export default function ProductDetailClient({
   product,
   gallery,
@@ -111,7 +132,7 @@ export default function ProductDetailClient({
   const [cartAdded, setCartAdded] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [showSensitive, setShowSensitive] = useState(false)
-  
+
   const title = pickLang(product.name_ar, product.name_en, product.name_ku, 'ar')
   const description = pickLang(
     product.description_ar,
@@ -178,6 +199,10 @@ export default function ProductDetailClient({
     product.featured_image ||
     'https://placehold.co/1200x1200?text=House+of+Antiques'
 
+  const isSensitive = product.is_sensitive === true
+  const isSold = product.status === 'sold' || product.is_available === false
+  const statusLabel = getStatusLabel(product.status, product.is_available)
+
   useEffect(() => {
     const ids = getFavoriteIds()
     setFavorite(ids.includes(product.id))
@@ -218,6 +243,8 @@ export default function ProductDetailClient({
   }
 
   function handleAddToCart() {
+    if (isSold) return
+
     addToCart({
       id: product.id,
       slug: product.slug,
@@ -240,8 +267,6 @@ export default function ProductDetailClient({
     }
     window.location.href = '/'
   }
-
-  const isSensitive = product.is_sensitive === true
 
   return (
     <main className={styles.page}>
@@ -293,44 +318,44 @@ export default function ProductDetailClient({
         </div>
 
         <section className={styles.productLayout}>
-  <div className={styles.viewerCol}>
-    <div className={styles.viewerFrame}>
-      <div className={styles.imageWrapper}>
-        <img
-          src={currentImage}
-          alt={title}
-          className={`${styles.mainImage} ${
-            isSensitive && !showSensitive ? styles.blurImage : ""
-          }`}
-        />
+          <div className={styles.viewerCol}>
+            <div className={styles.viewerFrame}>
+              <div className={styles.imageWrapper}>
+                <img
+                  src={currentImage}
+                  alt={title}
+                  className={`${styles.mainImage} ${
+                    isSensitive && !showSensitive ? styles.blurImage : ''
+                  }`}
+                />
 
-        {isSensitive && !showSensitive ? (
-          <div className={styles.sensitiveOverlay}>
-            <div className={styles.sensitiveBox}>
-              <div className={styles.sensitiveIconWrap}>
-                <EyeOff size={22} />
+                {isSensitive && !showSensitive ? (
+                  <div className={styles.sensitiveOverlay}>
+                    <div className={styles.sensitiveBox}>
+                      <div className={styles.sensitiveIconWrap}>
+                        <EyeOff size={22} />
+                      </div>
+
+                      <div className={styles.sensitiveEyebrow}>Sensitive Content</div>
+                      <div className={styles.sensitiveTitle}>Hidden Preview</div>
+
+                      <p className={styles.sensitiveText}>
+                        This artwork contains explicit visual content.
+                      </p>
+
+                      <button
+                        type="button"
+                        className={styles.sensitiveBtn}
+                        onClick={() => setShowSensitive(true)}
+                      >
+                        <Eye size={16} />
+                        Reveal Content
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
-
-              <div className={styles.sensitiveEyebrow}>Sensitive Content</div>
-              <div className={styles.sensitiveTitle}>Hidden Preview</div>
-
-              <p className={styles.sensitiveText}>
-                This artwork contains explicit visual content.
-              </p>
-
-              <button
-                type="button"
-                className={styles.sensitiveBtn}
-                onClick={() => setShowSensitive(true)}
-              >
-                <Eye size={16} />
-                Reveal Content
-              </button>
             </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
 
             {gallery.length > 1 ? (
               <div className={styles.thumbRail}>
@@ -376,7 +401,7 @@ export default function ProductDetailClient({
                 type="button"
                 className={styles.iconBtn}
                 onClick={handleCopyLink}
-                aria-label="copy link"
+                aria-label="نسخ الرابط"
                 title="نسخ الرابط"
               >
                 ⧉
@@ -385,10 +410,12 @@ export default function ProductDetailClient({
 
             <div className={`${styles.titleBlock} ${styles.fadeUp} ${styles.delay1}`}>
               <h1 className={styles.title}>{title}</h1>
+
               <div className={styles.metaLine}>
-                <span>متوفرة</span>
+                <span>{statusLabel}</span>
                 <span>•</span>
                 <span>{product.sku || '—'}</span>
+
                 {isSensitive ? (
                   <>
                     <span>•</span>
@@ -400,7 +427,7 @@ export default function ProductDetailClient({
 
             <div className={`${styles.priceRow} ${styles.fadeUp} ${styles.delay2}`}>
               <div className={styles.pricePill}>
-                {formatPrice(product.price_amount, 'USD')}
+                {formatPrice(product.price_amount, product.currency_code || 'USD')}
               </div>
             </div>
 
@@ -409,8 +436,9 @@ export default function ProductDetailClient({
                 type="button"
                 className={styles.primaryBtn}
                 onClick={handleAddToCart}
+                disabled={isSold}
               >
-                أضف إلى السلة
+                {isSold ? 'تم البيع' : 'أضف إلى السلة'}
               </button>
             </div>
 
@@ -475,7 +503,7 @@ export default function ProductDetailClient({
                     <div className={styles.similarBody}>
                       <div className={styles.similarName}>{itemTitle}</div>
                       <div className={styles.similarPrice}>
-                        {formatPrice(item.price_amount, 'USD')}
+                        {formatPrice(item.price_amount, item.currency_code || 'USD')}
                       </div>
                     </div>
                   </Link>

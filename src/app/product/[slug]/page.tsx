@@ -6,33 +6,48 @@ type ProductRow = {
   id: string
   slug: string
   sku: string | null
+
   name_ar: string | null
   name_en: string | null
   name_ku: string | null
+
   description_ar: string | null
   description_en: string | null
   description_ku: string | null
+
   price_amount: number
   currency_code: string
+
   featured_image: string | null
+
   is_sensitive: boolean | null
   is_auction: boolean | null
+
+  status: string | null
+  is_available: boolean | null
+
   artist_name: string | null
   year_text: string | null
+
   material_ar: string | null
   material_en: string | null
   material_ku: string | null
+
   condition_ar: string | null
   condition_en: string | null
   condition_ku: string | null
+
   dimensions_ar: string | null
   dimensions_en: string | null
   dimensions_ku: string | null
+
   period_ar: string | null
   period_en: string | null
   period_ku: string | null
+
   origin_country: string | null
   signed: boolean | null
+
   category_slug: string | null
 }
 
@@ -81,6 +96,8 @@ export default async function ProductPage({
       featured_image,
       is_sensitive,
       is_auction,
+      status,
+      is_available,
       artist_name,
       year_text,
       material_ar,
@@ -120,16 +137,16 @@ export default async function ProductPage({
     images && images.length
       ? images
       : product.featured_image
-      ? [
-          {
-            image_url: product.featured_image,
-            alt_ar: product.name_ar,
-            alt_en: product.name_en,
-            alt_ku: product.name_ku,
-            sort_order: 0,
-          },
-        ]
-      : []
+        ? [
+            {
+              image_url: product.featured_image,
+              alt_ar: product.name_ar,
+              alt_en: product.name_en,
+              alt_ku: product.name_ku,
+              sort_order: 0,
+            },
+          ]
+        : []
 
   const { data: similarProducts } = await supabase
     .from('products_with_category')
