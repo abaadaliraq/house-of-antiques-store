@@ -4,8 +4,7 @@ import { supabase } from "../lib/supabase";
 export default async function StorePage() {
   const { data } = await supabase
     .from("products")
-    .select(
-      `
+    .select(`
       id,
       sku,
       slug,
@@ -21,11 +20,11 @@ export default async function StorePage() {
       featured_image,
       is_featured,
       is_available,
+      status,
       stock,
       signed,
       is_sensitive
-      `
-    )
+    `)
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false });
 

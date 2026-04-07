@@ -110,6 +110,10 @@ function getNumericPrice(value?: number | string | null) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function isSoldProduct(product: StoreProduct) {
+  return product.status === "sold" || product.is_available === false;
+}
+
 export default function StoreHomeView({ products }: StoreHomeViewProps) {
   const [locale, setLocale] = useState<StoreLocale>("ar");
   const [search, setSearch] = useState("");
@@ -142,8 +146,8 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     document.documentElement.dir = locale === "en" ? "ltr" : "rtl";
   }, [locale]);
 
-  const availableProducts = useMemo(() => {
-    return products.filter((product) => product.slug && product.is_available !== false);
+  const visibleProducts = useMemo(() => {
+    return products.filter((product) => product.slug);
   }, [products]);
 
   const categories = useMemo(() => {
@@ -154,29 +158,38 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
   }, [locale]);
 
   const featuredProducts = useMemo(() => {
-    const explicit = availableProducts.filter((product) => product.is_featured);
+    const explicit = visibleProducts.filter(
+      (product) => product.is_featured && !isSoldProduct(product)
+    );
 
     if (explicit.length >= 6) return explicit.slice(0, 12);
 
     const merged = [...explicit];
 
-    for (const product of availableProducts) {
+    for (const product of visibleProducts) {
+      if (isSoldProduct(product)) continue;
       const exists = merged.some((item) => item.id === product.id);
       if (!exists) merged.push(product);
       if (merged.length >= 12) break;
     }
 
     return merged;
-  }, [availableProducts]);
+  }, [visibleProducts]);
 
   const rareSignedProducts = useMemo(() => {
-    return availableProducts.filter((product) => product.signed === true).slice(0, 10);
-  }, [availableProducts]);
+    return visibleProducts
+      .filter((product) => product.signed === true && !isSoldProduct(product))
+      .slice(0, 10);
+  }, [visibleProducts]);
+
+  const soldProducts = useMemo(() => {
+    return visibleProducts.filter((product) => isSoldProduct(product)).slice(0, 18);
+  }, [visibleProducts]);
 
   const filteredProducts = useMemo(() => {
     const needle = normalizeText(search);
 
-    let result = availableProducts.filter((product) => {
+    let result = visibleProducts.filter((product) => {
       const productCategory = mapCategoryToSlug(product.source_category);
       const inCategory =
         activeCategory === "all" ? true : productCategory === activeCategory;
@@ -194,6 +207,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
         product.description_en,
         product.description_ku,
         product.source_category,
+        product.status,
       ]
         .map(normalizeText)
         .join(" ");
@@ -204,11 +218,11 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     });
 
     if (sortValue === "featured") {
-      result = result.filter((product) => product.is_featured);
+      result = result.filter((product) => product.is_featured && !isSoldProduct(product));
     }
 
     if (sortValue === "signed") {
-      result = result.filter((product) => product.signed === true);
+      result = result.filter((product) => product.signed === true && !isSoldProduct(product));
     }
 
     if (sortValue === "price_desc") {
@@ -232,13 +246,33 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     }
 
     return result;
-  }, [availableProducts, activeCategory, favoritesOnly, favorites, search, sortValue]);
+  }, [visibleProducts, activeCategory, favoritesOnly, favorites, search, sortValue]);
 
-  const topProducts = useMemo(() => filteredProducts.slice(0, 20), [filteredProducts]);
-  const bottomProducts = useMemo(() => filteredProducts.slice(20), [filteredProducts]);
+  const featuredIds = useMemo(() => {
+    return new Set(featuredProducts.map((product) => product.id));
+  }, [featuredProducts]);
 
-  const heroImage =
-    featuredProducts[0]?.featured_image || availableProducts[0]?.featured_image || null;
+  const gridProducts = useMemo(() => {
+    const isDefaultStoreView =
+      activeCategory === "all" &&
+      !favoritesOnly &&
+      !search.trim() &&
+      sortValue === "default";
+
+    if (!isDefaultStoreView) return filteredProducts;
+
+    return filteredProducts.filter((product) => !featuredIds.has(product.id));
+  }, [
+    filteredProducts,
+    activeCategory,
+    favoritesOnly,
+    search,
+    sortValue,
+    featuredIds,
+  ]);
+
+  const topProducts = useMemo(() => gridProducts.slice(0, 20), [gridProducts]);
+  const bottomProducts = useMemo(() => gridProducts.slice(20), [gridProducts]);
 
   function toggleFavorite(id: string) {
     setFavorites((current) =>
@@ -471,7 +505,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
             }
             categories={categories}
             activeCategory={activeCategory}
-            totalCount={filteredProducts.length}
+            totalCount={gridProducts.length}
             searchValue={search}
             filtersOpen={filtersOpen}
             sortValue={sortValue}
@@ -485,36 +519,29 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
             onSortChange={(value) => {
               setSortValue(value);
               closeFilters();
-              
             }}
           />
         }
-       featured={
-  <StoreFeatured
-    products={featuredProducts}
-    locale={locale}
-  />
-}
-
-stickyShowcase={
-  <StoreStickyShowcase
-    image="https://res.cloudinary.com/dyqdfbaln/image/upload/v1/hoa-slv-083-jpg_upjqky"
-    title={
-      locale === "ar"
-        ? "اقتناء يليق بالذائقة الرفيعة"
-        : locale === "ku"
-        ? "گرتنێکی شیاوی زەوقی بەرز"
-        : "A refined piece worth collecting"
-    }
-    description={
-      locale === "ar"
-        ? "ليست كل القطع للعرض فقط، بعضها خُلق ليكون جزءاً من مجموعة خاصة."
-        : locale === "ku"
-        ? "هەموو پارچەکان بۆ پیشاندان نین، هەندێکیان بۆ کۆمەڵەی تایبەت دروستکراون."
-        : "Not every piece is meant to be displayed. Some are meant to belong."
-    }
-  />
-}
+        featured={<StoreFeatured products={featuredProducts} locale={locale} />}
+        stickyShowcase={
+          <StoreStickyShowcase
+            image="https://res.cloudinary.com/dyqdfbaln/image/upload/v1/hoa-slv-083-jpg_upjqky"
+            title={
+              locale === "ar"
+                ? "اقتناء يليق بالذائقة الرفيعة"
+                : locale === "ku"
+                ? "گرتنێکی شیاوی زەوقی بەرز"
+                : "A refined piece worth collecting"
+            }
+            description={
+              locale === "ar"
+                ? "ليست كل القطع للعرض فقط، بعضها خُلق ليكون جزءاً من مجموعة خاصة."
+                : locale === "ku"
+                ? "هەموو پارچەکان بۆ پیشاندان نین، هەندێکیان بۆ کۆمەڵەی تایبەت دروستکراون."
+                : "Not every piece is meant to be displayed. Some are meant to belong."
+            }
+          />
+        }
         footer={<StoreFooter />}
       >
         <section id="products" ref={productsRef} className="space-y-4 pt-2">
@@ -549,10 +576,10 @@ stickyShowcase={
               </h2>
             </div>
 
-            <div className="text-sm text-black/55">{filteredProducts.length} items</div>
+            <div className="text-sm text-black/55">{gridProducts.length} items</div>
           </div>
 
-          {filteredProducts.length ? (
+          {gridProducts.length ? (
             <>
               <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
                 {topProducts.map((product) => (
@@ -574,6 +601,51 @@ stickyShowcase={
                   products={rareSignedProducts}
                   locale={locale}
                 />
+              ) : null}
+
+              {soldProducts.length > 0 ? (
+                <section className="featured-rail-section sold-rail-band">
+                 <div className="featured-rail-section__head sold-rail-band__head">
+                    <div>
+                      <p className="featured-rail-section__kicker">
+                        {locale === "ar"
+                          ? "تم اقتناؤها"
+                          : locale === "ku"
+                          ? "کراونەتەوە"
+                          : "Collected"}
+                      </p>
+                      <h2 className="featured-rail-section__title">
+                        {locale === "ar"
+                          ? "قطع تم اقتناؤها"
+                          : locale === "ku"
+                          ? "پارچەی کڕدراو"
+                          : "Collected pieces"}
+                      </h2>
+                      <p className="featured-rail-section__count">
+                        {soldProducts.length} items
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="featured-rail-section__viewport">
+                    <div className="featured-rail-section__track">
+                      {soldProducts.map((product) => (
+                        <div
+                          key={product.id}
+                          className="featured-rail-card"
+                        >
+                          <ProductCard
+                            product={product}
+                            locale={locale}
+                            isFavorite={favorites.includes(product.id)}
+                            onToggleFavorite={toggleFavorite}
+                            productHref={`/product/${product.slug}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               ) : null}
 
               {bottomProducts.length > 0 ? (
@@ -600,6 +672,7 @@ stickyShowcase={
                   ? "هیچ ئەنجامێک نییە"
                   : "No results found"}
               </h3>
+
               <p className="mt-2 text-sm text-black/55">
                 {locale === "ar"
                   ? "جرّب تغيير البحث أو التصنيف أو ألغِ وضع المفضلة."

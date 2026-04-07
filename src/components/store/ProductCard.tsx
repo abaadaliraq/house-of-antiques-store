@@ -23,6 +23,7 @@ export type StoreProduct = {
   featured_image?: string | null;
   is_featured?: boolean | null;
   is_available?: boolean | null;
+  status?: string | null;
   stock?: number | null;
   signed?: boolean | null;
   is_sensitive?: boolean | null;
@@ -133,10 +134,13 @@ export default function ProductCard({
   const price = formatPrice(product.price_amount, product.currency_code);
   const isSensitive = product.is_sensitive === true;
   const isBlurred = isSensitive && !revealed;
+  const isSold = product.status === "sold" || product.is_available === false;
 
   function handleAddToCart(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
+
+    if (isSold) return;
 
     const card = e.currentTarget.closest(".hoa-product-card");
     const media = card?.querySelector(".hoa-product-media") as HTMLElement | null;
@@ -165,7 +169,7 @@ export default function ProductCard({
   }
 
   return (
-    <article className="hoa-product-card group relative rounded-[24px]">
+    <article className="hoa-product-card masonry-item group relative rounded-[24px]">
       <button
         type="button"
         onClick={() => onToggleFavorite?.(product.id)}
@@ -175,19 +179,26 @@ export default function ProductCard({
         <Heart size={15} className={isFavorite ? "fill-current" : ""} />
       </button>
 
+      {isSold ? (
+        <div className="absolute left-3 top-3 z-30 inline-flex min-h-[32px] items-center justify-center rounded-full border border-red-200 bg-red-600 px-3 text-[12px] font-bold text-white shadow-[0_10px_24px_rgba(220,38,38,0.22)]">
+          {locale === "ar" ? "مباعة" : locale === "ku" ? "فرۆشراو" : "Sold"}
+        </div>
+      ) : null}
+
       <Link href={href} className="block text-inherit no-underline">
-        <div className="hoa-product-media relative overflow-hidden rounded-[22px] bg-[#eee7dc] aspect-[0.9/1.05] shadow-[0_14px_34px_rgba(0,0,0,0.06)]">
+        <div className="hoa-product-media product-masonry-media relative overflow-hidden rounded-[22px] bg-[#eee7dc] shadow-[0_14px_34px_rgba(0,0,0,0.06)]">
           {image ? (
             <img
               src={image}
               alt={name}
               className={[
-                "h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]",
-                isBlurred ? "blur-[20px] brightness-[0.68] scale-[1.04]" : "",
+                "product-masonry-image block w-full h-auto transition duration-500 group-hover:scale-[1.01]",
+                isBlurred ? "blur-[20px] brightness-[0.68] scale-[1.02]" : "",
+                isSold ? "opacity-[0.92]" : "",
               ].join(" ")}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-black/35">
+            <div className="flex min-h-[260px] items-center justify-center text-sm text-black/35">
               No image
             </div>
           )}
@@ -237,14 +248,24 @@ export default function ProductCard({
         <button
           type="button"
           onClick={handleAddToCart}
+          disabled={isSold}
           className={`mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border px-4 text-sm font-medium transition ${
-            added
+            isSold
+              ? "cursor-not-allowed border-red-200 bg-red-50 text-red-700"
+              : added
               ? "border-[#111] bg-[#111] text-white"
               : "border-black/10 bg-white text-black hover:border-black/20 hover:bg-[#111] hover:text-white"
           }`}
         >
-          {added ? <Check size={15} /> : <ShoppingBag size={15} />}
-          {added
+          {isSold ? null : added ? <Check size={15} /> : <ShoppingBag size={15} />}
+
+          {isSold
+            ? locale === "ar"
+              ? "تم اقتناؤها"
+              : locale === "ku"
+              ? "کڕدراوە"
+              : "Collected"
+            : added
             ? locale === "ar"
               ? "أضيفت إلى السلة"
               : locale === "ku"

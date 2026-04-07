@@ -80,7 +80,9 @@ type SimilarProductRow = {
 type Props = {
   product: ProductRow
   gallery: ProductImageRow[]
-  similarProducts: SimilarProductRow[]
+  closeMatches: SimilarProductRow[]
+  styleMatches: SimilarProductRow[]
+  extendedMatches: SimilarProductRow[]
 }
 
 function pickLang(
@@ -124,7 +126,9 @@ function getStatusLabel(status?: string | null, isAvailable?: boolean | null) {
 export default function ProductDetailClient({
   product,
   gallery,
-  similarProducts,
+  closeMatches,
+  styleMatches,
+  extendedMatches,
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [favorite, setFavorite] = useState(false)
@@ -452,67 +456,171 @@ export default function ProductDetailClient({
             </div>
           </div>
         </section>
+{/* ===== 1. قطع مشابهة ===== */}
+<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+  <div className={styles.similarHead}>
+    <h2 className={styles.similarTitle}>قطع مشابهة</h2>
+    <p className={styles.similarSubtitle}>
+      الأقرب لهذه القطعة من نفس الطابع أو النوع أو الخامة.
+    </p>
+  </div>
 
-        <section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
-          <div className={styles.similarHead}>
-            <h2 className={styles.similarTitle}>قطع مشابهة</h2>
-          </div>
+  {closeMatches.length === 0 ? (
+    <div className={styles.empty}>لا توجد قطع مشابهة حالياً</div>
+  ) : (
+    <div className={styles.similarGrid}>
+      {closeMatches.map((item) => {
+        const itemTitle = pickLang(
+          item.name_ar,
+          item.name_en,
+          item.name_ku,
+          'ar'
+        )
+        const itemSensitive = item.is_sensitive === true
 
-          {similarProducts.length === 0 ? (
-            <div className={styles.empty}>لا توجد قطع مشابهة حالياً</div>
-          ) : (
-            <div className={styles.similarRail}>
-              {similarProducts.map((item) => {
-                const itemTitle = pickLang(
-                  item.name_ar,
-                  item.name_en,
-                  item.name_ku,
-                  'ar'
-                )
-                const itemSensitive = item.is_sensitive === true
+        return (
+          <Link
+            key={item.id}
+            href={`/product/${item.slug}`}
+            className={styles.similarCard}
+          >
+            <div className={styles.similarImageWrap}>
+              <div className={styles.similarImageBox}>
+                <img
+                  src={
+                    item.featured_image ||
+                    'https://placehold.co/800x1000?text=House+of+Antiques'
+                  }
+                  alt={itemTitle}
+                  className={`${styles.similarImage} ${
+                    itemSensitive ? styles.blurSimilarImage : ''
+                  }`}
+                />
 
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/product/${item.slug}`}
-                    className={styles.similarCard}
-                  >
-                    <div className={styles.similarImageWrap}>
-                      <div className={styles.similarImageBox}>
-                        <img
-                          src={
-                            item.featured_image ||
-                            'https://placehold.co/800x1000?text=House+of+Antiques'
-                          }
-                          alt={itemTitle}
-                          className={`${styles.similarImage} ${
-                            itemSensitive ? styles.blurSimilarImage : ''
-                          }`}
-                        />
-
-                        {itemSensitive ? (
-                          <div className={styles.similarSensitiveOverlay}>
-                            <span className={styles.similarSensitiveLabel}>
-                              محتوى حساس
-                            </span>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className={styles.similarBody}>
-                      <div className={styles.similarName}>{itemTitle}</div>
-                      <div className={styles.similarPrice}>
-                        {formatPrice(item.price_amount, item.currency_code || 'USD')}
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
+                {itemSensitive ? (
+                  <div className={styles.similarSensitiveOverlay}>
+                    <span className={styles.similarSensitiveLabel}>
+                      محتوى حساس
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             </div>
-          )}
-        </section>
 
+            <div className={styles.similarBody}>
+              <div className={styles.similarName}>{itemTitle}</div>
+              <div className={styles.similarPrice}>
+                {formatPrice(item.price_amount, item.currency_code || 'USD')}
+              </div>
+            </div>
+          </Link>
+        )
+      })}
+    </div>
+  )}
+</section>
+
+{/* ===== 2. نفس الجو ===== */}
+<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+  <div className={styles.similarHead}>
+    <h2 className={styles.similarTitle}>من نفس الجو العام</h2>
+    <p className={styles.similarSubtitle}>
+      قطع قريبة من الأسلوب بدون ما تكون نسخة مباشرة.
+    </p>
+  </div>
+
+  {styleMatches.length === 0 ? null : (
+    <div className={styles.similarGrid}>
+      {styleMatches.map((item) => {
+        const itemTitle = pickLang(
+          item.name_ar,
+          item.name_en,
+          item.name_ku,
+          'ar'
+        )
+
+        return (
+          <Link
+            key={item.id}
+            href={`/product/${item.slug}`}
+            className={styles.similarCard}
+          >
+            <div className={styles.similarImageWrap}>
+              <div className={styles.similarImageBox}>
+                <img
+                  src={
+                    item.featured_image ||
+                    'https://placehold.co/800x1000?text=House+of+Antiques'
+                  }
+                  alt={itemTitle}
+                  className={styles.similarImage}
+                />
+              </div>
+            </div>
+
+            <div className={styles.similarBody}>
+              <div className={styles.similarName}>{itemTitle}</div>
+              <div className={styles.similarPrice}>
+                {formatPrice(item.price_amount, item.currency_code || 'USD')}
+              </div>
+            </div>
+          </Link>
+        )
+      })}
+    </div>
+  )}
+</section>
+
+{/* ===== 3. استكشاف ممتد ===== */}
+<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+  <div className={styles.similarHead}>
+    <h2 className={styles.similarTitle}>استكشاف ممتد</h2>
+    <p className={styles.similarSubtitle}>
+      استمر بالتصفح داخل نفس الطابع العام للقطع.
+    </p>
+  </div>
+
+  {extendedMatches.length === 0 ? null : (
+    <div className={styles.similarGrid}>
+      {extendedMatches.map((item) => {
+        const itemTitle = pickLang(
+          item.name_ar,
+          item.name_en,
+          item.name_ku,
+          'ar'
+        )
+
+        return (
+          <Link
+            key={item.id}
+            href={`/product/${item.slug}`}
+            className={styles.similarCard}
+          >
+            <div className={styles.similarImageWrap}>
+              <div className={styles.similarImageBox}>
+                <img
+                  src={
+                    item.featured_image ||
+                    'https://placehold.co/800x1000?text=House+of+Antiques'
+                  }
+                  alt={itemTitle}
+                  className={styles.similarImage}
+                />
+              </div>
+            </div>
+
+            <div className={styles.similarBody}>
+              <div className={styles.similarName}>{itemTitle}</div>
+              <div className={styles.similarPrice}>
+                {formatPrice(item.price_amount, item.currency_code || 'USD')}
+              </div>
+            </div>
+          </Link>
+        )
+      })}
+    </div>
+  )}
+</section>
         {copied ? <div className={styles.toast}>تم نسخ الرابط</div> : null}
         {cartAdded ? <div className={styles.toastAlt}>تمت الإضافة إلى السلة</div> : null}
       </div>

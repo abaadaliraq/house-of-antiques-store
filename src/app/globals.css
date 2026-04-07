@@ -1875,16 +1875,6 @@ a {
   color: inherit;
 }
 
-.product-tile__media {
-  position: relative;
-  overflow: hidden;
-  border-radius: 18px;
-  background: #f3eee7;
-  aspect-ratio: 0.92 / 1.08;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-  margin-bottom: 12px;
-}
-
 .product-tile__image {
   width: 100%;
   height: 100%;
@@ -2243,4 +2233,259 @@ a {
 
 body {
   font-family: var(--font-body), system-ui, sans-serif;
+}
+/* ===== Pinterest-style masonry cards ===== */
+
+/* ===== cleaner masonry without ugly gaps ===== */
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.masonry-item {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+}
+
+.hoa-product-card {
+  width: 100%;
+}
+
+.hoa-product-media,
+.product-tile__media,
+.product-masonry-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f3eee7;
+  height: auto !important;
+  min-height: 0;
+}
+
+.hoa-product-media img,
+.product-tile__image,
+.product-masonry-image {
+  display: block;
+  width: 100%;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 1100px) {
+  .store-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .store-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+.product-masonry-media,
+.product-tile__media,
+.hoa-product-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f3eee7;
+  aspect-ratio: auto !important;
+  height: auto !important;
+  min-height: 0;
+}
+
+.product-masonry-image,
+.product-tile__image,
+.hoa-product-media img {
+  display: block;
+  width: 100%;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+}
+
+/* نخلي النص تحت الصورة مرتب */
+.product-tile__meta {
+  padding: 10px 2px 0;
+}
+
+@media (max-width: 1100px) {
+  .store-grid {
+    column-count: 3;
+    column-gap: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .store-grid {
+    column-count: 2;
+    column-gap: 12px;
+  }
+
+  .product-tile,
+  .hoa-product-card {
+    margin-bottom: 14px;
+  }
+}
+.product-masonry-media,
+.product-tile__media,
+.hoa-product-media {
+  padding: 8px;
+  background:
+    linear-gradient(180deg, #f7f2eb, #eee7dc);
+}
+/* ===== sold pieces horizontal band ===== */
+
+.sold-rail-band {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 28px;
+  margin-bottom: 28px;
+  padding: 22px 0;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0.42)),
+    url("https://res.cloudinary.com/dyqdfbaln/image/upload/v1/hoa-slv-112_y3946z");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sold-rail-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.18);
+  pointer-events: none;
+}
+
+.sold-rail-band > * {
+  position: relative;
+  z-index: 1;
+}
+
+.sold-rail-band__head .featured-rail-section__kicker {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.sold-rail-band__head .featured-rail-section__title {
+  color: #fff;
+}
+
+.sold-rail-band__head .featured-rail-section__count {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.48);
+}
+
+@media (max-width: 720px) {
+  .sold-rail-band {
+    padding: 18px 0;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+}
+/* ===== sold pieces band ===== */
+
+.sold-rare-band {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 28px;
+  margin-bottom: 28px;
+  padding: 22px 0;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.42)),
+    url("https://res.cloudinary.com/dyqdfbaln/image/upload/v1/PUT-YOUR-CLOUDINARY-CODE");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sold-rare-band__inner {
+  width: 100%;
+}
+
+.sold-rare-band__head {
+  width: min(1400px, calc(100vw - 32px));
+  margin: 0 auto 14px;
+  padding: 0 16px;
+}
+
+.sold-rare-band__kicker {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.sold-rare-band__title {
+  margin: 0;
+  font-size: clamp(1.15rem, 1.8vw, 1.7rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.sold-rare-band__rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 16px 6px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sold-rare-band__rail::-webkit-scrollbar {
+  display: none;
+}
+
+.sold-rare-band__card {
+  min-width: 230px;
+  max-width: 230px;
+  flex: 0 0 230px;
+}
+
+@media (max-width: 720px) {
+  .sold-rare-band {
+    padding: 18px 0;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .sold-rare-band__card {
+    min-width: 200px;
+    max-width: 200px;
+    flex-basis: 200px;
+  }
 }

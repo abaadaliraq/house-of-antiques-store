@@ -764,3 +764,22 @@
 .sensitiveBtn:hover{
   transform:translateY(-1px);
 }
+.similarSubtitle{
+  margin:8px 0 0;
+  font-size:13px;
+  line-height:1.9;
+  color:rgba(255,255,255,.62);
+}
+
+.similarGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+@media (min-width:980px){
+  .similarGrid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+  }
+}
