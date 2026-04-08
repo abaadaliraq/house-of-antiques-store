@@ -43,9 +43,8 @@ export default function RootLayout({
       dir="rtl"
       className={`${displayEn.variable} ${bodyAr.variable} ${bodyEn.variable}`}
     >
-      <body
-        className="font-sans bg-[#f7f3ed] text-[#111]"
-      >
+      <body className="font-sans bg-[#070809] text-[#f5f1ea]">
+        
         {children}
       </body>
     </html>

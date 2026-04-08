@@ -31,7 +31,7 @@ export default function StoreFeatured({ products, locale }: StoreFeaturedProps) 
   if (!products.length) return null;
 
   return (
-    <section id="featured" className="featured-rail-section">
+    <section id="featured" className="featured-rail-section featured-rail-band">
       <div className="featured-rail-section__head">
         <div>
           <p className="featured-rail-section__kicker">
@@ -70,17 +70,10 @@ export default function StoreFeatured({ products, locale }: StoreFeaturedProps) 
                   ) : (
                     <div className="featured-rail-card__fallback">No image</div>
                   )}
-
                   <div className="featured-rail-card__overlay" />
 
                   <div className="featured-rail-card__content">
-                    <p className="featured-rail-card__category">
-                      {product.source_category || "Collection"}
-                    </p>
                     <h3 className="featured-rail-card__name">{name}</h3>
-                    <div className="featured-rail-card__price">
-                      {formatPrice(product.price_amount, product.currency_code)}
-                    </div>
                   </div>
                 </div>
               </Link>

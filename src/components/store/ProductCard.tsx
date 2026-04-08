@@ -169,15 +169,22 @@ export default function ProductCard({
   }
 
   return (
-    <article className="hoa-product-card masonry-item group relative rounded-[24px]">
-      <button
-        type="button"
-        onClick={() => onToggleFavorite?.(product.id)}
-        aria-label="Toggle favorite"
-        className="absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/85 text-black backdrop-blur-md transition hover:bg-white"
-      >
-        <Heart size={15} className={isFavorite ? "fill-current" : ""} />
-      </button>
+    <article className="hoa-product-card masonry-item group relative mb-4 break-inside-avoid rounded-[24px]">
+<button
+  type="button"
+  onClick={() => onToggleFavorite?.(product.id)}
+  aria-label="Toggle favorite"
+  className={`absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-sm transition ${
+    isFavorite
+      ? "border-[#8d121c]/70 bg-transparent text-[#b91c2b]"
+      : "border-white/18 bg-transparent text-white/75 hover:border-white/28 hover:text-white"
+  }`}
+>
+  <Heart
+    size={16}
+    className={isFavorite ? "fill-current" : ""}
+  />
+</button>
 
       {isSold ? (
         <div className="absolute left-3 top-3 z-30 inline-flex min-h-[32px] items-center justify-center rounded-full border border-red-200 bg-red-600 px-3 text-[12px] font-bold text-white shadow-[0_10px_24px_rgba(220,38,38,0.22)]">
@@ -192,13 +199,13 @@ export default function ProductCard({
               src={image}
               alt={name}
               className={[
-                "product-masonry-image block w-full h-auto transition duration-500 group-hover:scale-[1.01]",
+                "product-masonry-image block w-fit h-auto transition duration-500 group-hover:scale-[1.01]",
                 isBlurred ? "blur-[20px] brightness-[0.68] scale-[1.02]" : "",
                 isSold ? "opacity-[0.92]" : "",
               ].join(" ")}
             />
           ) : (
-            <div className="flex min-h-[260px] items-center justify-center text-sm text-black/35">
+            <div className="flex min-h-[260px] items-center justify-center text-sm text-white/40">
               No image
             </div>
           )}
@@ -223,7 +230,7 @@ export default function ProductCard({
                 <button
                   type="button"
                   onClick={handleReveal}
-                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-white/20 bg-white text-black text-sm font-semibold transition hover:bg-white/90"
+                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-white/20 bg-white text-white text-sm font-semibold transition hover:bg-white/90"
                 >
                   <Eye size={16} />
                   Reveal
@@ -236,47 +243,47 @@ export default function ProductCard({
 
       <div className="px-1 pt-3">
         <Link href={href} className="block text-inherit no-underline">
-          <h3 className="line-clamp-2 text-[14px] font-semibold leading-7 text-black">
+          <h3 className="line-clamp-2 text-[14px] font-semibold leading-7 text-white">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-1 text-[14px] font-medium text-black/58">
+        <div className="mt-1 text-[14px] font-medium text-white/58">
           {price}
         </div>
 
         <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isSold}
-          className={`mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border px-4 text-sm font-medium transition ${
-            isSold
-              ? "cursor-not-allowed border-red-200 bg-red-50 text-red-700"
-              : added
-              ? "border-[#111] bg-[#111] text-white"
-              : "border-black/10 bg-white text-black hover:border-black/20 hover:bg-[#111] hover:text-white"
-          }`}
-        >
-          {isSold ? null : added ? <Check size={15} /> : <ShoppingBag size={15} />}
+  type="button"
+  onClick={handleAddToCart}
+  disabled={isSold}
+  className={`mt-3 inline-flex h-9 w-fit min-w-[132px] items-center justify-center gap-2 rounded-full border px-4 text-[12px] font-medium transition ${
+    isSold
+      ? "cursor-not-allowed border-white/10 bg-white/5 text-white/45"
+      : added
+      ? "border-white/14 bg-white/10 text-white"
+      : "border-white/10 bg-[#11151b] text-white/82 hover:border-white/16 hover:bg-[#171c22] hover:text-white"
+  }`}
+>
+  {isSold ? null : added ? <Check size={14} /> : <ShoppingBag size={14} />}
 
-          {isSold
-            ? locale === "ar"
-              ? "تم اقتناؤها"
-              : locale === "ku"
-              ? "کڕدراوە"
-              : "Collected"
-            : added
-            ? locale === "ar"
-              ? "أضيفت إلى السلة"
-              : locale === "ku"
-              ? "خرایە سەبەتەکە"
-              : "Added to cart"
-            : locale === "ar"
-            ? "اقتناء القطعة"
-            : locale === "ku"
-            ? "زیادکردن بۆ سەبەتە"
-            : "Add to cart"}
-        </button>
+  {isSold
+    ? locale === "ar"
+      ? "تم اقتناؤها"
+      : locale === "ku"
+      ? "کڕدراوە"
+      : "Collected"
+    : added
+    ? locale === "ar"
+      ? "أضيفت إلى السلة"
+      : locale === "ku"
+      ? "خرایە سەبەتەکە"
+      : "Added to cart"
+    : locale === "ar"
+    ? "اقتناء القطعة"
+    : locale === "ku"
+    ? "زیادکردن بۆ سەبەتە"
+    : "Add to cart"}
+</button>
       </div>
     </article>
   );

@@ -7,6 +7,8 @@ import { formatPrice } from '../../../lib/format'
 import { addToCart, getCartCount } from '../../../lib/cart'
 import styles from './ProductPage.module.css'
 
+type StoreLang = 'ar' | 'en' | 'ku'
+
 type ProductRow = {
   id: string
   slug: string
@@ -85,11 +87,14 @@ type Props = {
   extendedMatches: SimilarProductRow[]
 }
 
+const FAVORITES_KEY = 'hoa_favorites_v1'
+const LANG_KEY = 'store_lang'
+
 function pickLang(
   ar?: string | null,
   en?: string | null,
   ku?: string | null,
-  lang: 'ar' | 'en' | 'ku' = 'ar'
+  lang: StoreLang = 'ar'
 ) {
   if (lang === 'ar') return ar || en || ku || ''
   if (lang === 'ku') return ku || ar || en || ''
@@ -98,7 +103,7 @@ function pickLang(
 
 function getFavoriteIds(): string[] {
   try {
-    const raw = localStorage.getItem('store_favorites')
+    const raw = localStorage.getItem(FAVORITES_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
   } catch {
@@ -107,7 +112,7 @@ function getFavoriteIds(): string[] {
 }
 
 function saveFavoriteIds(ids: string[]) {
-  localStorage.setItem('store_favorites', JSON.stringify(ids))
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(ids))
 }
 
 function formatCategory(category?: string | null) {
@@ -117,10 +122,41 @@ function formatCategory(category?: string | null) {
     .replace(/\b\w/g, (m) => m.toUpperCase())
 }
 
-function getStatusLabel(status?: string | null, isAvailable?: boolean | null) {
-  if (status === 'sold' || isAvailable === false) return 'مباعة'
-  if (status === 'reserved') return 'محجوزة'
-  return 'متوفرة'
+function getCategoryLabel(categorySlug?: string | null, lang: StoreLang = 'ar') {
+  const labels: Record<string, { ar: string; en: string; ku: string }> = {
+    paintings: { ar: 'لوحات', en: 'Paintings', ku: 'تابلۆ' },
+    artworks: { ar: 'أعمال فنية', en: 'Artworks', ku: 'کارە هونەرییەکان' },
+    accessories: { ar: 'إكسسوارات', en: 'Accessories', ku: 'ئاکسسوارات' },
+    copper: { ar: 'نحاس', en: 'Copper', ku: 'مس' },
+    silver: { ar: 'فضة', en: 'Silver', ku: 'زیو' },
+    crystal: { ar: 'كريستال', en: 'Crystal', ku: 'کریستاڵ' },
+    wood: { ar: 'خشب', en: 'Wood', ku: 'دار' },
+    carpets: { ar: 'سجاد', en: 'Carpets', ku: 'قالی' },
+    furniture: { ar: 'أثاث', en: 'Furniture', ku: 'کەلوپەل' },
+    vases: { ar: 'فازات', en: 'Vases', ku: 'گوڵدان' },
+  }
+
+  if (!categorySlug) {
+    return lang === 'ar' ? 'المجموعة' : lang === 'ku' ? 'کۆمەڵە' : 'Collection'
+  }
+
+  return labels[categorySlug]?.[lang] || formatCategory(categorySlug)
+}
+
+function getStatusLabel(
+  status?: string | null,
+  isAvailable?: boolean | null,
+  lang: StoreLang = 'ar'
+) {
+  if (status === 'sold' || isAvailable === false) {
+    return lang === 'ar' ? 'مباعة' : lang === 'ku' ? 'فرۆشراو' : 'Sold'
+  }
+
+  if (status === 'reserved') {
+    return lang === 'ar' ? 'محجوزة' : lang === 'ku' ? 'حەجزکراو' : 'Reserved'
+  }
+
+  return lang === 'ar' ? 'متوفرة' : lang === 'ku' ? 'بەردەستە' : 'Available'
 }
 
 export default function ProductDetailClient({
@@ -130,6 +166,7 @@ export default function ProductDetailClient({
   styleMatches,
   extendedMatches,
 }: Props) {
+  const [lang, setLang] = useState<StoreLang>('ar')
   const [activeIndex, setActiveIndex] = useState(0)
   const [favorite, setFavorite] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -137,65 +174,192 @@ export default function ProductDetailClient({
   const [cartCount, setCartCount] = useState(0)
   const [showSensitive, setShowSensitive] = useState(false)
 
-  const title = pickLang(product.name_ar, product.name_en, product.name_ku, 'ar')
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem(LANG_KEY) as StoreLang | null
+      if (savedLang === 'ar' || savedLang === 'en' || savedLang === 'ku') {
+        setLang(savedLang)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl'
+  }, [lang])
+
+  const t = useMemo(
+    () => ({
+      back: lang === 'ar' ? 'رجوع' : lang === 'ku' ? 'گەڕانەوە' : 'Back',
+      cart: lang === 'ar' ? 'السلة' : lang === 'ku' ? 'سەبەتە' : 'Cart',
+      favorite: lang === 'ar' ? 'مفضلة' : lang === 'ku' ? 'دڵخوازە' : 'Favorite',
+      addToFavorites:
+        lang === 'ar'
+          ? 'أضف للمفضلة'
+          : lang === 'ku'
+          ? 'زیادکردن بۆ دڵخوازەکان'
+          : 'Add to favorites',
+      copyLink:
+        lang === 'ar'
+          ? 'نسخ الرابط'
+          : lang === 'ku'
+          ? 'لەینک کۆپی بکە'
+          : 'Copy link',
+      noDescription:
+        lang === 'ar'
+          ? 'لا يوجد وصف حالياً.'
+          : lang === 'ku'
+          ? 'وەسف نییە.'
+          : 'No description available.',
+      sold: lang === 'ar' ? 'تم البيع' : lang === 'ku' ? 'فرۆشرا' : 'Sold',
+      addToCart:
+        lang === 'ar'
+          ? 'أضف إلى السلة'
+          : lang === 'ku'
+          ? 'زیادکردن بۆ سەبەتە'
+          : 'Add to cart',
+      code: lang === 'ar' ? 'الكود' : lang === 'ku' ? 'کۆد' : 'Code',
+      artist: lang === 'ar' ? 'الفنان' : lang === 'ku' ? 'هونەرمەند' : 'Artist',
+      year: lang === 'ar' ? 'السنة' : lang === 'ku' ? 'ساڵ' : 'Year',
+      dimensions: lang === 'ar' ? 'الأبعاد' : lang === 'ku' ? 'قەبارە' : 'Dimensions',
+      material: lang === 'ar' ? 'الخامة' : lang === 'ku' ? 'ماددە' : 'Material',
+      condition: lang === 'ar' ? 'الحالة' : lang === 'ku' ? 'دۆخ' : 'Condition',
+      sensitiveLabel:
+        lang === 'ar'
+          ? 'محتوى حساس'
+          : lang === 'ku'
+          ? 'ناوەڕۆکی هەستیار'
+          : 'Sensitive Content',
+      hiddenPreview:
+        lang === 'ar'
+          ? 'معاينة مخفية'
+          : lang === 'ku'
+          ? 'پێشبینینی شاردراو'
+          : 'Hidden Preview',
+      explicitText:
+        lang === 'ar'
+          ? 'هذا العمل يحتوي على محتوى بصري صريح.'
+          : lang === 'ku'
+          ? 'ئەم کارە ناوەڕۆکی بینراوی هەستیاری تێدایە.'
+          : 'This artwork contains explicit visual content.',
+      reveal:
+        lang === 'ar'
+          ? 'إظهار المحتوى'
+          : lang === 'ku'
+          ? 'پیشاندانی ناوەڕۆک'
+          : 'Reveal Content',
+      similar:
+        lang === 'ar' ? 'قطع مشابهة' : lang === 'ku' ? 'پارچەی هاوشێوە' : 'Similar pieces',
+      similarSub:
+        lang === 'ar'
+          ? 'الأقرب لهذه القطعة من نفس الطابع أو النوع أو الخامة.'
+          : lang === 'ku'
+          ? 'نزیکترین پارچەکان لەم کارە لە هەمان شێواز یان جۆر یان ماددە.'
+          : 'The closest pieces by style, type, or material.',
+      sameMood:
+        lang === 'ar'
+          ? 'من نفس الجو العام'
+          : lang === 'ku'
+          ? 'لە هەمان هەواودا'
+          : 'Same overall mood',
+      sameMoodSub:
+        lang === 'ar'
+          ? 'قطع قريبة من الأسلوب بدون ما تكون نسخة مباشرة.'
+          : lang === 'ku'
+          ? 'پارچەی نزیک لە شێوازدا بەبێ ئەوەی وەک یەک بن.'
+          : 'Pieces with a similar spirit, not direct duplicates.',
+      extended:
+        lang === 'ar'
+          ? 'استكشاف ممتد'
+          : lang === 'ku'
+          ? 'گەڕانێکی فراوانتر'
+          : 'Extended exploration',
+      extendedSub:
+        lang === 'ar'
+          ? 'استمر بالتصفح داخل نفس الطابع العام للقطع.'
+          : lang === 'ku'
+          ? 'بەردەوام بە لە گەڕان لە هەمان کەشی گشتی پارچەکان.'
+          : 'Keep browsing within the same general atmosphere.',
+      noSimilar:
+        lang === 'ar'
+          ? 'لا توجد قطع مشابهة حالياً'
+          : lang === 'ku'
+          ? 'هێشتا پارچەی هاوشێوە نییە'
+          : 'No similar pieces at the moment.',
+      linkCopied:
+        lang === 'ar'
+          ? 'تم نسخ الرابط'
+          : lang === 'ku'
+          ? 'لەینکەکە کۆپی کرا'
+          : 'Link copied',
+      addedToCart:
+        lang === 'ar'
+          ? 'تمت الإضافة إلى السلة'
+          : lang === 'ku'
+          ? 'خرایە سەبەتەکە'
+          : 'Added to cart',
+      sensitiveShort:
+        lang === 'ar'
+          ? 'محتوى حساس'
+          : lang === 'ku'
+          ? 'ناوەڕۆکی هەستیار'
+          : 'Sensitive content',
+      image:
+        lang === 'ar' ? 'صورة' : lang === 'ku' ? 'وێنە' : 'Image',
+    }),
+    [lang]
+  )
+
+  const title = pickLang(product.name_ar, product.name_en, product.name_ku, lang)
+
   const description = pickLang(
     product.description_ar,
     product.description_en,
     product.description_ku,
-    'ar'
+    lang
   )
 
   const categoryName = useMemo(() => {
-    if (product.category_slug === 'paintings') return 'لوحات'
-    if (product.category_slug === 'artworks') return 'أعمال فنية'
-    if (product.category_slug === 'accessories') return 'إكسسوارات'
-    if (product.category_slug === 'copper') return 'نحاس'
-    if (product.category_slug === 'silver') return 'فضة'
-    if (product.category_slug === 'crystal') return 'كريستال'
-    if (product.category_slug === 'wood') return 'خشب'
-    if (product.category_slug === 'carpets') return 'سجاد'
-    if (product.category_slug === 'furniture') return 'أثاث'
-    if (product.category_slug === 'vases') return 'فازات'
-    return formatCategory(product.category_slug)
-  }, [product.category_slug])
+    return getCategoryLabel(product.category_slug, lang)
+  }, [product.category_slug, lang])
 
   const detailsList = useMemo(
     () => [
-      { label: 'الكود', value: product.sku || '—' },
-      { label: 'الفنان', value: product.artist_name || '—' },
-      { label: 'السنة', value: product.year_text || '—' },
+      { label: t.code, value: product.sku || '—' },
+      { label: t.artist, value: product.artist_name || '—' },
+      { label: t.year, value: product.year_text || '—' },
       {
-        label: 'الأبعاد',
+        label: t.dimensions,
         value:
           pickLang(
             product.dimensions_ar,
             product.dimensions_en,
             product.dimensions_ku,
-            'ar'
+            lang
           ) || '—',
       },
       {
-        label: 'الخامة',
+        label: t.material,
         value:
           pickLang(
             product.material_ar,
             product.material_en,
             product.material_ku,
-            'ar'
+            lang
           ) || '—',
       },
       {
-        label: 'الحالة',
+        label: t.condition,
         value:
           pickLang(
             product.condition_ar,
             product.condition_en,
             product.condition_ku,
-            'ar'
+            lang
           ) || '—',
       },
     ],
-    [product]
+    [product, lang, t]
   )
 
   const currentImage =
@@ -205,7 +369,7 @@ export default function ProductDetailClient({
 
   const isSensitive = product.is_sensitive === true
   const isSold = product.status === 'sold' || product.is_available === false
-  const statusLabel = getStatusLabel(product.status, product.is_available)
+  const statusLabel = getStatusLabel(product.status, product.is_available, lang)
 
   useEffect(() => {
     const ids = getFavoriteIds()
@@ -256,7 +420,7 @@ export default function ProductDetailClient({
       name: title,
       image: currentImage,
       price: Number(product.price_amount || 0),
-      currency: 'USD',
+      currency: product.currency_code || 'USD',
       qty: 1,
     })
 
@@ -273,14 +437,15 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} dir={lang === 'en' ? 'ltr' : 'rtl'}>
       <div className={styles.wrap}>
         <div className={`${styles.productTopbar} ${styles.fadeUp}`}>
           <button
             type="button"
             className={styles.topbarBack}
             onClick={handleBack}
-            aria-label="رجوع"
+            aria-label={t.back}
+            title={t.back}
           >
             ←
           </button>
@@ -293,8 +458,8 @@ export default function ProductDetailClient({
             <Link
               href="/cart"
               className={styles.topbarCart}
-              aria-label="السلة"
-              title="السلة"
+              aria-label={t.cart}
+              title={t.cart}
               id="store-cart-button"
             >
               <ShoppingBag size={17} />
@@ -313,8 +478,8 @@ export default function ProductDetailClient({
                   : styles.topbarFav
               }
               onClick={handleFavorite}
-              aria-label="مفضلة"
-              title="أضف للمفضلة"
+              aria-label={t.favorite}
+              title={t.addToFavorites}
             >
               ♥
             </button>
@@ -340,12 +505,10 @@ export default function ProductDetailClient({
                         <EyeOff size={22} />
                       </div>
 
-                      <div className={styles.sensitiveEyebrow}>Sensitive Content</div>
-                      <div className={styles.sensitiveTitle}>Hidden Preview</div>
+                      <div className={styles.sensitiveEyebrow}>{t.sensitiveLabel}</div>
+                      <div className={styles.sensitiveTitle}>{t.hiddenPreview}</div>
 
-                      <p className={styles.sensitiveText}>
-                        This artwork contains explicit visual content.
-                      </p>
+                      <p className={styles.sensitiveText}>{t.explicitText}</p>
 
                       <button
                         type="button"
@@ -353,7 +516,7 @@ export default function ProductDetailClient({
                         onClick={() => setShowSensitive(true)}
                       >
                         <Eye size={16} />
-                        Reveal Content
+                        {t.reveal}
                       </button>
                     </div>
                   </div>
@@ -365,7 +528,8 @@ export default function ProductDetailClient({
               <div className={styles.thumbRail}>
                 {gallery.map((item, index) => {
                   const alt =
-                    item.alt_ar || item.alt_en || item.alt_ku || `${title} ${index + 1}`
+                    pickLang(item.alt_ar, item.alt_en, item.alt_ku, lang) ||
+                    `${t.image} ${index + 1}`
 
                   return (
                     <button
@@ -377,7 +541,7 @@ export default function ProductDetailClient({
                           : styles.thumbBtn
                       }
                       onClick={() => setActiveIndex(index)}
-                      aria-label={`image ${index + 1}`}
+                      aria-label={`${t.image} ${index + 1}`}
                     >
                       <img
                         src={item.image_url}
@@ -393,9 +557,7 @@ export default function ProductDetailClient({
             ) : null}
 
             <div className={`${styles.descriptionBox} ${styles.fadeUp} ${styles.delay1}`}>
-              <p className={styles.descriptionText}>
-                {description || 'لا يوجد وصف حالياً.'}
-              </p>
+              <p className={styles.descriptionText}>{description || t.noDescription}</p>
             </div>
           </div>
 
@@ -405,8 +567,8 @@ export default function ProductDetailClient({
                 type="button"
                 className={styles.iconBtn}
                 onClick={handleCopyLink}
-                aria-label="نسخ الرابط"
-                title="نسخ الرابط"
+                aria-label={t.copyLink}
+                title={t.copyLink}
               >
                 ⧉
               </button>
@@ -423,7 +585,7 @@ export default function ProductDetailClient({
                 {isSensitive ? (
                   <>
                     <span>•</span>
-                    <span>محتوى حساس</span>
+                    <span>{t.sensitiveShort}</span>
                   </>
                 ) : null}
               </div>
@@ -442,7 +604,7 @@ export default function ProductDetailClient({
                 onClick={handleAddToCart}
                 disabled={isSold}
               >
-                {isSold ? 'تم البيع' : 'أضف إلى السلة'}
+                {isSold ? t.sold : t.addToCart}
               </button>
             </div>
 
@@ -456,173 +618,188 @@ export default function ProductDetailClient({
             </div>
           </div>
         </section>
-{/* ===== 1. قطع مشابهة ===== */}
-<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
-  <div className={styles.similarHead}>
-    <h2 className={styles.similarTitle}>قطع مشابهة</h2>
-    <p className={styles.similarSubtitle}>
-      الأقرب لهذه القطعة من نفس الطابع أو النوع أو الخامة.
-    </p>
-  </div>
 
-  {closeMatches.length === 0 ? (
-    <div className={styles.empty}>لا توجد قطع مشابهة حالياً</div>
-  ) : (
-    <div className={styles.similarGrid}>
-      {closeMatches.map((item) => {
-        const itemTitle = pickLang(
-          item.name_ar,
-          item.name_en,
-          item.name_ku,
-          'ar'
-        )
-        const itemSensitive = item.is_sensitive === true
+        <section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+          <div className={styles.similarHead}>
+            <h2 className={styles.similarTitle}>{t.similar}</h2>
+            <p className={styles.similarSubtitle}>{t.similarSub}</p>
+          </div>
 
-        return (
-          <Link
-            key={item.id}
-            href={`/product/${item.slug}`}
-            className={styles.similarCard}
-          >
-            <div className={styles.similarImageWrap}>
-              <div className={styles.similarImageBox}>
-                <img
-                  src={
-                    item.featured_image ||
-                    'https://placehold.co/800x1000?text=House+of+Antiques'
-                  }
-                  alt={itemTitle}
-                  className={`${styles.similarImage} ${
-                    itemSensitive ? styles.blurSimilarImage : ''
-                  }`}
-                />
+          {closeMatches.length === 0 ? (
+            <div className={styles.empty}>{t.noSimilar}</div>
+          ) : (
+            <div className={styles.similarGrid}>
+              {closeMatches.map((item) => {
+                const itemTitle = pickLang(
+                  item.name_ar,
+                  item.name_en,
+                  item.name_ku,
+                  lang
+                )
+                const itemSensitive = item.is_sensitive === true
 
-                {itemSensitive ? (
-                  <div className={styles.similarSensitiveOverlay}>
-                    <span className={styles.similarSensitiveLabel}>
-                      محتوى حساس
-                    </span>
-                  </div>
-                ) : null}
-              </div>
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/product/${item.slug}`}
+                    className={styles.similarCard}
+                  >
+                    <div className={styles.similarImageWrap}>
+                      <div className={styles.similarImageBox}>
+                        <img
+                          src={
+                            item.featured_image ||
+                            'https://placehold.co/800x1000?text=House+of+Antiques'
+                          }
+                          alt={itemTitle}
+                          className={`${styles.similarImage} ${
+                            itemSensitive ? styles.blurSimilarImage : ''
+                          }`}
+                        />
+
+                        {itemSensitive ? (
+                          <div className={styles.similarSensitiveOverlay}>
+                            <span className={styles.similarSensitiveLabel}>
+                              {t.sensitiveShort}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className={styles.similarBody}>
+                      <div className={styles.similarName}>{itemTitle}</div>
+                      <div className={styles.similarPrice}>
+                        {formatPrice(item.price_amount, item.currency_code || 'USD')}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
+          )}
+        </section>
 
-            <div className={styles.similarBody}>
-              <div className={styles.similarName}>{itemTitle}</div>
-              <div className={styles.similarPrice}>
-                {formatPrice(item.price_amount, item.currency_code || 'USD')}
-              </div>
+        <section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+          <div className={styles.similarHead}>
+            <h2 className={styles.similarTitle}>{t.sameMood}</h2>
+            <p className={styles.similarSubtitle}>{t.sameMoodSub}</p>
+          </div>
+
+          {styleMatches.length === 0 ? null : (
+            <div className={styles.similarGrid}>
+              {styleMatches.map((item) => {
+                const itemTitle = pickLang(
+                  item.name_ar,
+                  item.name_en,
+                  item.name_ku,
+                  lang
+                )
+                const itemSensitive = item.is_sensitive === true
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/product/${item.slug}`}
+                    className={styles.similarCard}
+                  >
+                    <div className={styles.similarImageWrap}>
+                      <div className={styles.similarImageBox}>
+                        <img
+                          src={
+                            item.featured_image ||
+                            'https://placehold.co/800x1000?text=House+of+Antiques'
+                          }
+                          alt={itemTitle}
+                          className={`${styles.similarImage} ${
+                            itemSensitive ? styles.blurSimilarImage : ''
+                          }`}
+                        />
+
+                        {itemSensitive ? (
+                          <div className={styles.similarSensitiveOverlay}>
+                            <span className={styles.similarSensitiveLabel}>
+                              {t.sensitiveShort}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className={styles.similarBody}>
+                      <div className={styles.similarName}>{itemTitle}</div>
+                      <div className={styles.similarPrice}>
+                        {formatPrice(item.price_amount, item.currency_code || 'USD')}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
-          </Link>
-        )
-      })}
-    </div>
-  )}
-</section>
+          )}
+        </section>
 
-{/* ===== 2. نفس الجو ===== */}
-<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
-  <div className={styles.similarHead}>
-    <h2 className={styles.similarTitle}>من نفس الجو العام</h2>
-    <p className={styles.similarSubtitle}>
-      قطع قريبة من الأسلوب بدون ما تكون نسخة مباشرة.
-    </p>
-  </div>
+        <section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
+          <div className={styles.similarHead}>
+            <h2 className={styles.similarTitle}>{t.extended}</h2>
+            <p className={styles.similarSubtitle}>{t.extendedSub}</p>
+          </div>
 
-  {styleMatches.length === 0 ? null : (
-    <div className={styles.similarGrid}>
-      {styleMatches.map((item) => {
-        const itemTitle = pickLang(
-          item.name_ar,
-          item.name_en,
-          item.name_ku,
-          'ar'
-        )
+          {extendedMatches.length === 0 ? null : (
+            <div className={styles.similarGrid}>
+              {extendedMatches.map((item) => {
+                const itemTitle = pickLang(
+                  item.name_ar,
+                  item.name_en,
+                  item.name_ku,
+                  lang
+                )
+                const itemSensitive = item.is_sensitive === true
 
-        return (
-          <Link
-            key={item.id}
-            href={`/product/${item.slug}`}
-            className={styles.similarCard}
-          >
-            <div className={styles.similarImageWrap}>
-              <div className={styles.similarImageBox}>
-                <img
-                  src={
-                    item.featured_image ||
-                    'https://placehold.co/800x1000?text=House+of+Antiques'
-                  }
-                  alt={itemTitle}
-                  className={styles.similarImage}
-                />
-              </div>
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/product/${item.slug}`}
+                    className={styles.similarCard}
+                  >
+                    <div className={styles.similarImageWrap}>
+                      <div className={styles.similarImageBox}>
+                        <img
+                          src={
+                            item.featured_image ||
+                            'https://placehold.co/800x1000?text=House+of+Antiques'
+                          }
+                          alt={itemTitle}
+                          className={`${styles.similarImage} ${
+                            itemSensitive ? styles.blurSimilarImage : ''
+                          }`}
+                        />
+
+                        {itemSensitive ? (
+                          <div className={styles.similarSensitiveOverlay}>
+                            <span className={styles.similarSensitiveLabel}>
+                              {t.sensitiveShort}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className={styles.similarBody}>
+                      <div className={styles.similarName}>{itemTitle}</div>
+                      <div className={styles.similarPrice}>
+                        {formatPrice(item.price_amount, item.currency_code || 'USD')}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
+          )}
+        </section>
 
-            <div className={styles.similarBody}>
-              <div className={styles.similarName}>{itemTitle}</div>
-              <div className={styles.similarPrice}>
-                {formatPrice(item.price_amount, item.currency_code || 'USD')}
-              </div>
-            </div>
-          </Link>
-        )
-      })}
-    </div>
-  )}
-</section>
-
-{/* ===== 3. استكشاف ممتد ===== */}
-<section className={`${styles.similarSection} ${styles.fadeUp} ${styles.delay4}`}>
-  <div className={styles.similarHead}>
-    <h2 className={styles.similarTitle}>استكشاف ممتد</h2>
-    <p className={styles.similarSubtitle}>
-      استمر بالتصفح داخل نفس الطابع العام للقطع.
-    </p>
-  </div>
-
-  {extendedMatches.length === 0 ? null : (
-    <div className={styles.similarGrid}>
-      {extendedMatches.map((item) => {
-        const itemTitle = pickLang(
-          item.name_ar,
-          item.name_en,
-          item.name_ku,
-          'ar'
-        )
-
-        return (
-          <Link
-            key={item.id}
-            href={`/product/${item.slug}`}
-            className={styles.similarCard}
-          >
-            <div className={styles.similarImageWrap}>
-              <div className={styles.similarImageBox}>
-                <img
-                  src={
-                    item.featured_image ||
-                    'https://placehold.co/800x1000?text=House+of+Antiques'
-                  }
-                  alt={itemTitle}
-                  className={styles.similarImage}
-                />
-              </div>
-            </div>
-
-            <div className={styles.similarBody}>
-              <div className={styles.similarName}>{itemTitle}</div>
-              <div className={styles.similarPrice}>
-                {formatPrice(item.price_amount, item.currency_code || 'USD')}
-              </div>
-            </div>
-          </Link>
-        )
-      })}
-    </div>
-  )}
-</section>
-        {copied ? <div className={styles.toast}>تم نسخ الرابط</div> : null}
-        {cartAdded ? <div className={styles.toastAlt}>تمت الإضافة إلى السلة</div> : null}
+        {copied ? <div className={styles.toast}>{t.linkCopied}</div> : null}
+        {cartAdded ? <div className={styles.toastAlt}>{t.addedToCart}</div> : null}
       </div>
     </main>
   )

@@ -11,10 +11,12 @@ import StoreStickyShowcase from "./StoreStickyShowcase";
 import StoreFooter from "./StoreFooter";
 import StoreRareSignedRail from "./StoreRareSignedRail";
 
+
 type StoreHomeViewProps = {
+  
   products: StoreProduct[];
 };
-
+const LANG_KEY = "store_lang";
 const FAVORITES_KEY = "hoa_favorites_v1";
 
 const FIXED_CATEGORIES = [
@@ -61,23 +63,36 @@ function mapCategoryToSlug(value?: string | null) {
     return "artworks";
   }
 
-  if (raw.includes("لوحات") || raw.includes("لوحة") || raw.includes("paintings")) {
+  if (
+    raw.includes("لوحات") ||
+    raw.includes("لوحة") ||
+    raw.includes("paintings")
+  ) {
     return "paintings";
   }
 
-  if (raw.includes("اثاث") || raw.includes("أثاث") || raw.includes("furniture")) {
+  if (
+    raw.includes("اثاث") ||
+    raw.includes("أثاث") ||
+    raw.includes("furniture")
+  ) {
     return "furniture";
   }
 
   if (raw.includes("خشب") || raw.includes("wood")) return "wood";
   if (raw.includes("كريستال") || raw.includes("crystal")) return "crystal";
 
-  if (raw.includes("فازات") || raw.includes("مزهر") || raw.includes("vase")) {
+  if (
+    raw.includes("فازات") ||
+    raw.includes("مزهر") ||
+    raw.includes("vase")
+  ) {
     return "vases";
   }
 
   return "other";
 }
+
 
 function categoryLabel(slug: string, locale: StoreLocale) {
   const labels: Record<string, { ar: string; en: string; ku: string }> = {
@@ -115,7 +130,18 @@ function isSoldProduct(product: StoreProduct) {
 }
 
 export default function StoreHomeView({ products }: StoreHomeViewProps) {
-  const [locale, setLocale] = useState<StoreLocale>("ar");
+ const [locale, setLocale] = useState<StoreLocale>(() => {
+  if (typeof window === "undefined") return "ar";
+
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved === "ar" || saved === "en" || saved === "ku") {
+      return saved;
+    }
+  } catch {}
+
+  return "ar";
+});
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -146,6 +172,11 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     document.documentElement.dir = locale === "en" ? "ltr" : "rtl";
   }, [locale]);
 
+  useEffect(() => {
+  try {
+    localStorage.setItem(LANG_KEY, locale);
+  } catch {}
+}, [locale]);
   const visibleProducts = useMemo(() => {
     return products.filter((product) => product.slug);
   }, [products]);
@@ -156,35 +187,6 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
       label: categoryLabel(slug, locale),
     }));
   }, [locale]);
-
-  const featuredProducts = useMemo(() => {
-    const explicit = visibleProducts.filter(
-      (product) => product.is_featured && !isSoldProduct(product)
-    );
-
-    if (explicit.length >= 6) return explicit.slice(0, 12);
-
-    const merged = [...explicit];
-
-    for (const product of visibleProducts) {
-      if (isSoldProduct(product)) continue;
-      const exists = merged.some((item) => item.id === product.id);
-      if (!exists) merged.push(product);
-      if (merged.length >= 12) break;
-    }
-
-    return merged;
-  }, [visibleProducts]);
-
-  const rareSignedProducts = useMemo(() => {
-    return visibleProducts
-      .filter((product) => product.signed === true && !isSoldProduct(product))
-      .slice(0, 10);
-  }, [visibleProducts]);
-
-  const soldProducts = useMemo(() => {
-    return visibleProducts.filter((product) => isSoldProduct(product)).slice(0, 18);
-  }, [visibleProducts]);
 
   const filteredProducts = useMemo(() => {
     const needle = normalizeText(search);
@@ -218,11 +220,15 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     });
 
     if (sortValue === "featured") {
-      result = result.filter((product) => product.is_featured && !isSoldProduct(product));
+      result = result.filter(
+        (product) => product.is_featured === true && !isSoldProduct(product)
+      );
     }
 
     if (sortValue === "signed") {
-      result = result.filter((product) => product.signed === true && !isSoldProduct(product));
+      result = result.filter(
+        (product) => product.signed === true && !isSoldProduct(product)
+      );
     }
 
     if (sortValue === "price_desc") {
@@ -248,28 +254,61 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     return result;
   }, [visibleProducts, activeCategory, favoritesOnly, favorites, search, sortValue]);
 
+  const isHomeDefaultView = useMemo(() => {
+    return (
+      activeCategory === "all" &&
+      !favoritesOnly &&
+      !search.trim() &&
+      sortValue === "default"
+    );
+  }, [activeCategory, favoritesOnly, search, sortValue]);
+
+  const featuredProducts = useMemo(() => {
+    if (!isHomeDefaultView) return [];
+
+    const explicit = visibleProducts.filter(
+      (product) => product.is_featured === true && !isSoldProduct(product)
+    );
+
+    if (explicit.length >= 6) return explicit.slice(0, 12);
+
+    const merged = [...explicit];
+
+    for (const product of visibleProducts) {
+      if (isSoldProduct(product)) continue;
+      const exists = merged.some((item) => item.id === product.id);
+      if (!exists) merged.push(product);
+      if (merged.length >= 12) break;
+    }
+
+    return merged;
+  }, [visibleProducts, isHomeDefaultView]);
+
+  const rareSignedProducts = useMemo(() => {
+    if (!isHomeDefaultView) return [];
+
+    return visibleProducts
+      .filter((product) => product.signed === true && !isSoldProduct(product))
+      .slice(0, 10);
+  }, [visibleProducts, isHomeDefaultView]);
+
+  const soldProducts = useMemo(() => {
+    if (!isHomeDefaultView) return [];
+
+    return visibleProducts
+      .filter((product) => isSoldProduct(product))
+      .slice(0, 18);
+  }, [visibleProducts, isHomeDefaultView]);
+
   const featuredIds = useMemo(() => {
     return new Set(featuredProducts.map((product) => product.id));
   }, [featuredProducts]);
 
   const gridProducts = useMemo(() => {
-    const isDefaultStoreView =
-      activeCategory === "all" &&
-      !favoritesOnly &&
-      !search.trim() &&
-      sortValue === "default";
-
-    if (!isDefaultStoreView) return filteredProducts;
+    if (!isHomeDefaultView) return filteredProducts;
 
     return filteredProducts.filter((product) => !featuredIds.has(product.id));
-  }, [
-    filteredProducts,
-    activeCategory,
-    favoritesOnly,
-    search,
-    sortValue,
-    featuredIds,
-  ]);
+  }, [filteredProducts, featuredIds, isHomeDefaultView]);
 
   const topProducts = useMemo(() => gridProducts.slice(0, 20), [gridProducts]);
   const bottomProducts = useMemo(() => gridProducts.slice(20), [gridProducts]);
@@ -298,19 +337,51 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     closeMenu();
   }
 
-  function goToFeatured() {
-    document.getElementById("featured")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+  function resetToHomeAndScroll() {
+    setActiveCategory("all");
+    setFavoritesOnly(false);
+    setSearch("");
+    setSortValue("default");
+
+    requestAnimationFrame(() => {
+      productsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
+
+    closeMenu();
+  }
+
+  function goToFeatured() {
+    setActiveCategory("all");
+    setFavoritesOnly(false);
+    setSearch("");
+    setSortValue("default");
+
+    requestAnimationFrame(() => {
+      document.getElementById("featured")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
     closeMenu();
   }
 
   function goToSigned() {
-    document.getElementById("signed")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+    setActiveCategory("all");
+    setFavoritesOnly(false);
+    setSearch("");
+    setSortValue("default");
+
+    requestAnimationFrame(() => {
+      document.getElementById("signed")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
+
     closeMenu();
   }
 
@@ -384,11 +455,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                     <div className="grid gap-3">
                       <button
                         type="button"
-                        onClick={() => {
-                          setActiveCategory("all");
-                          setFavoritesOnly(false);
-                          scrollToProducts();
-                        }}
+                        onClick={resetToHomeAndScroll}
                         className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-right text-sm text-white/90 transition hover:bg-white/10"
                       >
                         {locale === "ar"
@@ -484,10 +551,10 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
             locale={locale}
             title={
               locale === "ar"
-                ? "زيارة المجموعات"
+                ? "متجر بيت التحفيات"
                 : locale === "ku"
                 ? "سەردانی کۆمەڵەکان"
-                : "Visit Galleries"
+                : "HOUSE OF ANTIQUES STORE"
             }
             subtitle={
               locale === "ar"
@@ -522,32 +589,38 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
             }}
           />
         }
-        featured={<StoreFeatured products={featuredProducts} locale={locale} />}
+        featured={
+          isHomeDefaultView ? (
+            <StoreFeatured products={featuredProducts} locale={locale} />
+          ) : null
+        }
         stickyShowcase={
-          <StoreStickyShowcase
-            image="https://res.cloudinary.com/dyqdfbaln/image/upload/v1/hoa-slv-083-jpg_upjqky"
-            title={
-              locale === "ar"
-                ? "اقتناء يليق بالذائقة الرفيعة"
-                : locale === "ku"
-                ? "گرتنێکی شیاوی زەوقی بەرز"
-                : "A refined piece worth collecting"
-            }
-            description={
-              locale === "ar"
-                ? "ليست كل القطع للعرض فقط، بعضها خُلق ليكون جزءاً من مجموعة خاصة."
-                : locale === "ku"
-                ? "هەموو پارچەکان بۆ پیشاندان نین، هەندێکیان بۆ کۆمەڵەی تایبەت دروستکراون."
-                : "Not every piece is meant to be displayed. Some are meant to belong."
-            }
-          />
+          isHomeDefaultView ? (
+            <StoreStickyShowcase
+              image="https://res.cloudinary.com/dyqdfbaln/image/upload/v1/hoa-slv-083-jpg_upjqky"
+              title={
+                locale === "ar"
+                  ? "اقتناء يليق بالذائقة الرفيعة"
+                  : locale === "ku"
+                  ? "گرتنێکی شیاوی زەوقی بەرز"
+                  : "A refined piece worth collecting"
+              }
+              description={
+                locale === "ar"
+                  ? "ليست كل القطع للعرض فقط، بعضها خُلق ليكون جزءاً من مجموعة خاصة."
+                  : locale === "ku"
+                  ? "هەموو پارچەکان بۆ پیشاندان نین، هەندێکیان بۆ کۆمەڵەی تایبەت دروستکراون."
+                  : "Not every piece is meant to be displayed. Some are meant to belong."
+              }
+            />
+          ) : null
         }
         footer={<StoreFooter />}
       >
         <section id="products" ref={productsRef} className="space-y-4 pt-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-black/45">
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-white/40">
                 {favoritesOnly
                   ? locale === "ar"
                     ? "المحفوظ"
@@ -561,7 +634,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                   : "Collection"}
               </p>
 
-              <h2 className="store-section-title mt-1 text-[1.5rem] font-semibold tracking-[-0.03em] text-black sm:text-[1.85rem]">
+              <h2 className="store-section-title mt-1 text-[1.5rem] font-semibold tracking-[-0.03em] text-white opacity-100 sm:text-[1.85rem]">
                 {favoritesOnly
                   ? locale === "ar"
                     ? "قطعك المفضلة"
@@ -576,36 +649,33 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
               </h2>
             </div>
 
-            <div className="text-sm text-black/55">{gridProducts.length} items</div>
+            <div className="text-sm text-white/55">{gridProducts.length} items</div>
           </div>
 
           {gridProducts.length ? (
             <>
-              <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
-                {topProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    locale={locale}
-                    isFavorite={favorites.includes(product.id)}
-                    onToggleFavorite={toggleFavorite}
-                    productHref={`/product/${product.slug}`}
-                  />
-                ))}
-              </div>
-
-              {activeCategory === "all" &&
-              !favoritesOnly &&
-              rareSignedProducts.length > 0 ? (
+              <div className="store-masonry-columns">
+  {topProducts.map((product) => (
+    <ProductCard
+      key={product.id}
+      product={product}
+      locale={locale}
+      isFavorite={favorites.includes(product.id)}
+      onToggleFavorite={toggleFavorite}
+      productHref={`/product/${product.slug}`}
+    />
+  ))}
+</div>
+              {isHomeDefaultView && rareSignedProducts.length > 0 ? (
                 <StoreRareSignedRail
                   products={rareSignedProducts}
                   locale={locale}
                 />
               ) : null}
 
-              {soldProducts.length > 0 ? (
+              {isHomeDefaultView && soldProducts.length > 0 ? (
                 <section className="featured-rail-section sold-rail-band">
-                 <div className="featured-rail-section__head sold-rail-band__head">
+                  <div className="featured-rail-section__head sold-rail-band__head">
                     <div>
                       <p className="featured-rail-section__kicker">
                         {locale === "ar"
@@ -630,10 +700,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                   <div className="featured-rail-section__viewport">
                     <div className="featured-rail-section__track">
                       {soldProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          className="featured-rail-card"
-                        >
+                        <div key={product.id} className="featured-rail-card">
                           <ProductCard
                             product={product}
                             locale={locale}
@@ -649,23 +716,23 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
               ) : null}
 
               {bottomProducts.length > 0 ? (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
-                  {bottomProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      locale={locale}
-                      isFavorite={favorites.includes(product.id)}
-                      onToggleFavorite={toggleFavorite}
-                      productHref={`/product/${product.slug}`}
-                    />
-                  ))}
-                </div>
+                <div className="store-masonry-columns">
+  {bottomProducts.map((product) => (
+    <ProductCard
+      key={product.id}
+      product={product}
+      locale={locale}
+      isFavorite={favorites.includes(product.id)}
+      onToggleFavorite={toggleFavorite}
+      productHref={`/product/${product.slug}`}
+    />
+  ))}
+</div>
               ) : null}
             </>
           ) : (
             <div className="store-soft-card rounded-[1.8rem] p-8 text-center">
-              <h3 className="text-[1.2rem] font-semibold tracking-[-0.03em] text-black">
+              <h3 className="text-[1.2rem] font-semibold tracking-[-0.03em] text-white">
                 {locale === "ar"
                   ? "لا توجد نتائج"
                   : locale === "ku"
@@ -673,7 +740,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                   : "No results found"}
               </h3>
 
-              <p className="mt-2 text-sm text-black/55">
+              <p className="mt-2 text-sm text-white/55">
                 {locale === "ar"
                   ? "جرّب تغيير البحث أو التصنيف أو ألغِ وضع المفضلة."
                   : locale === "ku"

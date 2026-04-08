@@ -21,9 +21,14 @@ function getName(product: StoreProduct, locale: StoreLocale) {
 }
 
 function formatPrice(value?: number | string | null, currency?: string | null) {
-  if (value === null || value === undefined || value === "") return "Price on request";
+  if (value === null || value === undefined || value === "")
+    return "Price on request";
+
   const numeric = typeof value === "string" ? Number(value) : value;
-  if (Number.isNaN(numeric)) return `${value} ${currency ?? ""}`.trim();
+
+  if (Number.isNaN(numeric))
+    return `${value} ${currency ?? ""}`.trim();
+
   return `${numeric.toLocaleString()} ${currency ?? "IQD"}`;
 }
 
@@ -31,7 +36,10 @@ export default function StoreRareSignedRail({ products, locale }: Props) {
   if (!products.length) return null;
 
   return (
-    <section id="signed" className="rare-signed-band">
+    <section
+      id="signed"
+      className="rare-signed-band signed-rail-band"
+    >
       <div className="rare-signed-band__inner">
         <div className="rare-signed-band__head">
           <p className="rare-signed-band__kicker">
@@ -70,15 +78,23 @@ export default function StoreRareSignedRail({ products, locale }: Props) {
                       className="rare-signed-band__image"
                     />
                   ) : (
-                    <div className="rare-signed-band__fallback">No image</div>
+                    <div className="rare-signed-band__fallback">
+                      No image
+                    </div>
                   )}
 
                   <div className="rare-signed-band__overlay" />
 
                   <div className="rare-signed-band__content">
-                    <div className="rare-signed-band__name">{name}</div>
+                    <div className="rare-signed-band__name">
+                      {name}
+                    </div>
+
                     <div className="rare-signed-band__price">
-                      {formatPrice(product.price_amount, product.currency_code)}
+                      {formatPrice(
+                        product.price_amount,
+                        product.currency_code
+                      )}
                     </div>
                   </div>
                 </div>

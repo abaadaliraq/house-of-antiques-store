@@ -32,7 +32,7 @@ export default function StoreShell({
       <main className="relative z-10">
         {hero}
 
-        <section className="relative -mt-3 rounded-t-[2rem] border-t border-white/10 bg-[#f6f4ef] text-black shadow-[0_-24px_80px_rgba(0,0,0,0.38)] sm:-mt-6 sm:rounded-t-[2.5rem]">
+        <section className="relative -mt-3 rounded-t-[2rem] border-t border-white/10 bg-[#0b0d10] text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:-mt-6 sm:rounded-t-[2.5rem]">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-7 lg:px-8 lg:pb-20">
             {filters}
             {categories}
@@ -121,7 +121,7 @@ export default function StoreShell({
         }
 
         .store-soft-card {
-          border: 1px solid rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(33, 10, 10, 0.08);
           background: rgba(255, 255, 255, 0.78);
           backdrop-filter: blur(18px);
           box-shadow:
