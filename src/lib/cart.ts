@@ -3,9 +3,12 @@ export type CartItem = {
   slug: string;
   sku?: string | null;
   name: string;
-  image: string;
+  name_ar?: string;
+  name_en?: string;
+  name_ku?: string;
+  image?: string;
   price: number;
-  currency: string;
+  currency?: string;
   qty: number;
 };
 

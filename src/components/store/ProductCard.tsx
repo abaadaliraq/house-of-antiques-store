@@ -146,15 +146,18 @@ export default function ProductCard({
     const media = card?.querySelector(".hoa-product-media") as HTMLElement | null;
 
     addToCart({
-      id: product.id,
-      slug: product.slug,
-      sku: product.sku || null,
-      name,
-      image,
-      price: numericPrice,
-      currency: product.currency_code || "USD",
-      qty: 1,
-    });
+  id: product.id,
+  slug: product.slug,
+  sku: product.sku || null,
+  name,
+  name_ar: product.name_ar || "",
+  name_en: product.name_en || "",
+  name_ku: product.name_ku || "",
+  image,
+  price: numericPrice,
+  currency: product.currency_code || "USD",
+  qty: 1,
+});
 
     animateToCart(image, media);
 

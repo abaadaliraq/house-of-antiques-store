@@ -11,11 +11,10 @@ import StoreStickyShowcase from "./StoreStickyShowcase";
 import StoreFooter from "./StoreFooter";
 import StoreRareSignedRail from "./StoreRareSignedRail";
 
-
 type StoreHomeViewProps = {
-  
   products: StoreProduct[];
 };
+
 const LANG_KEY = "store_lang";
 const FAVORITES_KEY = "hoa_favorites_v1";
 
@@ -93,7 +92,6 @@ function mapCategoryToSlug(value?: string | null) {
   return "other";
 }
 
-
 function categoryLabel(slug: string, locale: StoreLocale) {
   const labels: Record<string, { ar: string; en: string; ku: string }> = {
     all: { ar: "الكل", en: "All", ku: "هەموو" },
@@ -130,18 +128,9 @@ function isSoldProduct(product: StoreProduct) {
 }
 
 export default function StoreHomeView({ products }: StoreHomeViewProps) {
- const [locale, setLocale] = useState<StoreLocale>(() => {
-  if (typeof window === "undefined") return "ar";
+  const [locale, setLocale] = useState<StoreLocale>("ar");
+  const [mounted, setMounted] = useState(false);
 
-  try {
-    const saved = localStorage.getItem(LANG_KEY);
-    if (saved === "ar" || saved === "en" || saved === "ku") {
-      return saved;
-    }
-  } catch {}
-
-  return "ar";
-});
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -151,6 +140,17 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
   const [sortValue, setSortValue] = useState<StoreSortValue>("default");
 
   const productsRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved === "ar" || saved === "en" || saved === "ku") {
+        setLocale(saved);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     try {
@@ -168,15 +168,21 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
   }, [favorites]);
 
   useEffect(() => {
-    document.documentElement.lang = locale;
+    document.documentElement.lang = locale === "ku" ? "ku" : locale;
     document.documentElement.dir = locale === "en" ? "ltr" : "rtl";
   }, [locale]);
 
-  useEffect(() => {
-  try {
-    localStorage.setItem(LANG_KEY, locale);
-  } catch {}
-}, [locale]);
+  function changeLocale(nextLocale: StoreLocale) {
+    setLocale(nextLocale);
+
+    try {
+      localStorage.setItem(LANG_KEY, nextLocale);
+    } catch {}
+
+    document.documentElement.lang = nextLocale === "ku" ? "ku" : nextLocale;
+    document.documentElement.dir = nextLocale === "en" ? "ltr" : "rtl";
+  }
+
   const visibleProducts = useMemo(() => {
     return products.filter((product) => product.slug);
   }, [products]);
@@ -241,8 +247,10 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
 
     if (sortValue === "price_asc") {
       result = [...result].sort((a, b) => {
-        const aPrice = getNumericPrice(a.price_amount) ?? Number.MAX_SAFE_INTEGER;
-        const bPrice = getNumericPrice(b.price_amount) ?? Number.MAX_SAFE_INTEGER;
+        const aPrice =
+          getNumericPrice(a.price_amount) ?? Number.MAX_SAFE_INTEGER;
+        const bPrice =
+          getNumericPrice(b.price_amount) ?? Number.MAX_SAFE_INTEGER;
         return aPrice - bPrice;
       });
     }
@@ -408,11 +416,11 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                   ? "ماڵی تحف"
                   : "House of Antiques"
               }
-              langLabel={locale.toUpperCase()}
+              langLabel={mounted ? locale.toUpperCase() : "AR"}
               isMenuOpen={menuOpen}
               favoritesOnly={favoritesOnly}
               onMenuClick={() => setMenuOpen((prev) => !prev)}
-              onLanguageToggle={() => setLocale((current) => cycleLocale(current))}
+              onLanguageToggle={() => changeLocale(cycleLocale(locale))}
               onSearchClick={scrollToProducts}
               onFavoritesClick={() => setFavoritesOnly((prev) => !prev)}
             />
@@ -519,7 +527,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                       <button
                         type="button"
                         onClick={() => {
-                          setLocale((current) => cycleLocale(current));
+                          changeLocale(cycleLocale(locale));
                           closeMenu();
                         }}
                         className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-right text-sm text-white/90 transition hover:bg-white/10"
@@ -655,17 +663,18 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
           {gridProducts.length ? (
             <>
               <div className="store-masonry-columns">
-  {topProducts.map((product) => (
-    <ProductCard
-      key={product.id}
-      product={product}
-      locale={locale}
-      isFavorite={favorites.includes(product.id)}
-      onToggleFavorite={toggleFavorite}
-      productHref={`/product/${product.slug}`}
-    />
-  ))}
-</div>
+                {topProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    locale={locale}
+                    isFavorite={favorites.includes(product.id)}
+                    onToggleFavorite={toggleFavorite}
+                    productHref={`/product/${product.slug}`}
+                  />
+                ))}
+              </div>
+
               {isHomeDefaultView && rareSignedProducts.length > 0 ? (
                 <StoreRareSignedRail
                   products={rareSignedProducts}
@@ -717,17 +726,17 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
 
               {bottomProducts.length > 0 ? (
                 <div className="store-masonry-columns">
-  {bottomProducts.map((product) => (
-    <ProductCard
-      key={product.id}
-      product={product}
-      locale={locale}
-      isFavorite={favorites.includes(product.id)}
-      onToggleFavorite={toggleFavorite}
-      productHref={`/product/${product.slug}`}
-    />
-  ))}
-</div>
+                  {bottomProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      locale={locale}
+                      isFavorite={favorites.includes(product.id)}
+                      onToggleFavorite={toggleFavorite}
+                      productHref={`/product/${product.slug}`}
+                    />
+                  ))}
+                </div>
               ) : null}
             </>
           ) : (
