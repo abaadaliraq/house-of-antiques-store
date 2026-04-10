@@ -11,8 +11,13 @@ import StoreStickyShowcase from "./StoreStickyShowcase";
 import StoreFooter from "./StoreFooter";
 import StoreRareSignedRail from "./StoreRareSignedRail";
 
+type ExtendedStoreProduct = StoreProduct & {
+  artist?: string | null;
+  artist_name?: string | null;
+};
+
 type StoreHomeViewProps = {
-  products: StoreProduct[];
+  products: ExtendedStoreProduct[];
 };
 
 const LANG_KEY = "store_lang";
@@ -32,6 +37,96 @@ const FIXED_CATEGORIES = [
   "vases",
 ] as const;
 
+const ARTIST_SECTIONS = [
+  {
+    key: "fouad",
+    label: {
+      ar: "أعمال فؤاد حمدي",
+      en: "Fouad Hamdi",
+      ku: "فؤاد حمدی",
+    },
+  },
+  {
+    key: "omid",
+    label: {
+      ar: "أعمال أوميد",
+      en: "Omid",
+      ku: "ئومید",
+    },
+  },
+  {
+    key: "yahya",
+    label: {
+      ar: "أعمال يحيى الدراجي",
+      en: "Yahya Al-Daraji",
+      ku: "یحیی الدراجی",
+    },
+  },
+  {
+    key: "talib",
+    label: {
+      ar: "أعمال طالب جبار",
+      en: "Talib Jabbar",
+      ku: "تاڵب جەبار",
+    },
+  },
+  {
+    key: "saad",
+    label: {
+      ar: "أعمال سعد",
+      en: "Saad",
+      ku: "سعد",
+    },
+  },
+  {
+    key: "saeed",
+    label: {
+      ar: "أعمال سعيد",
+      en: "Saeed",
+      ku: "سعید",
+    },
+  },
+  {
+    key: "hani",
+    label: {
+      ar: "أعمال هاني محيي الدين",
+      en: "Hani Mohiuddin",
+      ku: "هانی محیی الدین",
+    },
+  },
+  {
+    key: "salman",
+    label: {
+      ar: "أعمال سلمان راضي",
+      en: "Salman Radi",
+      ku: "سەلمان راضی",
+    },
+  },
+  {
+    key: "ali",
+    label: {
+      ar: "أعمال علي نعمة",
+      en: "Ali Neama",
+      ku: "عەلی نعمة",
+    },
+  },
+  {
+    key: "hussein",
+    label: {
+      ar: "أعمال حسين العزاوي",
+      en: "Hussein Al-Azzawi",
+      ku: "حسێن العزاوی",
+    },
+  },
+  {
+    key: "unsigned",
+    label: {
+      ar: "لوحات غير موقعة",
+      en: "Unsigned Paintings",
+      ku: "تابلۆی بێ واژۆ",
+    },
+  },
+] as const;
 function normalizeText(value?: string | null) {
   return (value || "").toLowerCase().trim();
 }
@@ -127,6 +222,151 @@ function isSoldProduct(product: StoreProduct) {
   return product.status === "sold" || product.is_available === false;
 }
 
+function normalizeArtistKey(value?: string | null) {
+  const raw = normalizeText(value);
+
+  if (!raw) return "unsigned";
+
+  if (
+    raw.includes("فؤاد") ||
+    raw.includes("حمدي") ||
+    raw.includes("fouad") ||
+    raw.includes("fuad") ||
+    raw.includes("hamdi")
+  ) {
+    return "fouad";
+  }
+
+  if (
+    raw.includes("اوميد") ||
+    raw.includes("أوميد") ||
+    raw.includes("omid")
+  ) {
+    return "omid";
+  }
+
+  if (
+    raw.includes("يحيى") ||
+    raw.includes("الدراجي") ||
+    raw.includes("yahya") ||
+    raw.includes("daraji")
+  ) {
+    return "yahya";
+  }
+
+  if (
+    raw.includes("طالب") ||
+    raw.includes("جبار") ||
+    raw.includes("talib") ||
+    raw.includes("jabbar")
+  ) {
+    return "talib";
+  }
+
+  if (
+    raw.includes("سعد") ||
+    raw.includes("saad")
+  ) {
+    return "saad";
+  }
+
+  if (
+    raw.includes("سعيد") ||
+    raw.includes("سعید") ||
+    raw.includes("saeed") ||
+    raw.includes("said")
+  ) {
+    return "saeed";
+  }
+
+  if (
+    raw.includes("هاني") ||
+    raw.includes("محيي") ||
+    raw.includes("محي الدين") ||
+    raw.includes("hani") ||
+    raw.includes("mohi") ||
+    raw.includes("mohiuddin")
+  ) {
+    return "hani";
+  }
+
+  if (
+    raw.includes("سلمان") ||
+    raw.includes("راضي") ||
+    raw.includes("salman") ||
+    raw.includes("radi")
+  ) {
+    return "salman";
+  }
+
+  if (
+    raw.includes("علي") ||
+    raw.includes("نعمة") ||
+    raw.includes("ali") ||
+    raw.includes("neama") ||
+    raw.includes("niema")
+  ) {
+    return "ali";
+  }
+
+  if (
+    raw.includes("حسين") ||
+    raw.includes("العزاوي") ||
+    raw.includes("hussein") ||
+    raw.includes("hussain") ||
+    raw.includes("azzawi") ||
+    raw.includes("azawi")
+  ) {
+    return "hussein";
+  }
+
+  return "unsigned";
+}
+function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
+  const groups: Record<string, ExtendedStoreProduct[]> = {
+    fouad: [],
+    omid: [],
+    yahya: [],
+    talib: [],
+    saad: [],
+    saeed: [],
+    hani: [],
+    salman: [],
+    ali: [],
+    hussein: [],
+    unsigned: [],
+  };
+
+  for (const product of products) {
+    const artistSource = [
+      product.artist_name,
+      product.artist,
+      product.name_ar,
+      product.name_en,
+      product.name_ku,
+      product.description_ar,
+      product.description_en,
+      product.description_ku,
+      product.slug,
+      product.sku,
+    ]
+      .map((item) => normalizeText(item))
+      .filter(Boolean)
+      .join(" ");
+
+    const artistKey = normalizeArtistKey(artistSource);
+
+    if (!groups[artistKey]) {
+      groups.unsigned.push(product);
+      continue;
+    }
+
+    groups[artistKey].push(product);
+  }
+
+  return groups;
+}
+
 export default function StoreHomeView({ products }: StoreHomeViewProps) {
   const [locale, setLocale] = useState<StoreLocale>("ar");
   const [mounted, setMounted] = useState(false);
@@ -216,6 +456,8 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
         product.description_ku,
         product.source_category,
         product.status,
+        product.artist,
+        product.artist_name,
       ]
         .map(normalizeText)
         .join(" ");
@@ -320,6 +562,11 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
 
   const topProducts = useMemo(() => gridProducts.slice(0, 20), [gridProducts]);
   const bottomProducts = useMemo(() => gridProducts.slice(20), [gridProducts]);
+
+  const paintingArtistGroups = useMemo(() => {
+    if (activeCategory !== "paintings") return null;
+    return groupPaintingsByArtist(gridProducts);
+  }, [activeCategory, gridProducts]);
 
   function toggleFavorite(id: string) {
     setFavorites((current) =>
@@ -662,82 +909,135 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
 
           {gridProducts.length ? (
             <>
-              <div className="store-masonry-columns">
-                {topProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    locale={locale}
-                    isFavorite={favorites.includes(product.id)}
-                    onToggleFavorite={toggleFavorite}
-                    productHref={`/product/${product.slug}`}
-                  />
-                ))}
-              </div>
+              {activeCategory === "paintings" ? (
+                <>
+                  {ARTIST_SECTIONS.map((section) => {
+                    const items = paintingArtistGroups?.[section.key] || [];
 
-              {isHomeDefaultView && rareSignedProducts.length > 0 ? (
-                <StoreRareSignedRail
-                  products={rareSignedProducts}
-                  locale={locale}
-                />
-              ) : null}
+                    if (!items.length) return null;
 
-              {isHomeDefaultView && soldProducts.length > 0 ? (
-                <section className="featured-rail-section sold-rail-band">
-                  <div className="featured-rail-section__head sold-rail-band__head">
-                    <div>
-                      <p className="featured-rail-section__kicker">
-                        {locale === "ar"
-                          ? "تم اقتناؤها"
-                          : locale === "ku"
-                          ? "کراونەتەوە"
-                          : "Collected"}
-                      </p>
-                      <h2 className="featured-rail-section__title">
-                        {locale === "ar"
-                          ? "قطع تم اقتناؤها"
-                          : locale === "ku"
-                          ? "پارچەی کڕدراو"
-                          : "Collected pieces"}
-                      </h2>
-                      <p className="featured-rail-section__count">
-                        {soldProducts.length} items
-                      </p>
-                    </div>
+                    return (
+                      <section
+                        key={section.key}
+                        className="featured-rail-section paintings-artist-rail"
+                      >
+                        <div className="featured-rail-section__head">
+                          <div>
+                            <p className="featured-rail-section__kicker">
+                              {locale === "ar"
+                                ? "أعمال فنان"
+                                : locale === "ku"
+                                ? "کارەکانی هونەرمەند"
+                                : "Artist collection"}
+                            </p>
+                            <h2 className="featured-rail-section__title">
+                              {section.label[locale]}
+                            </h2>
+                            <p className="featured-rail-section__count">
+                              {items.length} items
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="featured-rail-section__viewport">
+                          <div className="featured-rail-section__track">
+                            {items.map((product) => (
+                              <div key={product.id} className="featured-rail-card">
+                                <ProductCard
+                                  product={product}
+                                  locale={locale}
+                                  isFavorite={favorites.includes(product.id)}
+                                  onToggleFavorite={toggleFavorite}
+                                  productHref={`/product/${product.slug}`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  })}
+                </>
+              ) : (
+                <>
+                  <div className="store-masonry-columns">
+                    {topProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        locale={locale}
+                        isFavorite={favorites.includes(product.id)}
+                        onToggleFavorite={toggleFavorite}
+                        productHref={`/product/${product.slug}`}
+                      />
+                    ))}
                   </div>
 
-                  <div className="featured-rail-section__viewport">
-                    <div className="featured-rail-section__track">
-                      {soldProducts.map((product) => (
-                        <div key={product.id} className="featured-rail-card">
-                          <ProductCard
-                            product={product}
-                            locale={locale}
-                            isFavorite={favorites.includes(product.id)}
-                            onToggleFavorite={toggleFavorite}
-                            productHref={`/product/${product.slug}`}
-                          />
+                  {isHomeDefaultView && rareSignedProducts.length > 0 ? (
+                    <StoreRareSignedRail
+                      products={rareSignedProducts}
+                      locale={locale}
+                    />
+                  ) : null}
+
+                  {isHomeDefaultView && soldProducts.length > 0 ? (
+                    <section className="featured-rail-section sold-rail-band">
+                      <div className="featured-rail-section__head sold-rail-band__head">
+                        <div>
+                          <p className="featured-rail-section__kicker">
+                            {locale === "ar"
+                              ? "تم اقتناؤها"
+                              : locale === "ku"
+                              ? "کراونەتەوە"
+                              : "Collected"}
+                          </p>
+                          <h2 className="featured-rail-section__title">
+                            {locale === "ar"
+                              ? "قطع تم اقتناؤها"
+                              : locale === "ku"
+                              ? "پارچەی کڕدراو"
+                              : "Collected pieces"}
+                          </h2>
+                          <p className="featured-rail-section__count">
+                            {soldProducts.length} items
+                          </p>
                         </div>
+                      </div>
+
+                      <div className="featured-rail-section__viewport">
+                        <div className="featured-rail-section__track">
+                          {soldProducts.map((product) => (
+                            <div key={product.id} className="featured-rail-card">
+                              <ProductCard
+                                product={product}
+                                locale={locale}
+                                isFavorite={favorites.includes(product.id)}
+                                onToggleFavorite={toggleFavorite}
+                                productHref={`/product/${product.slug}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  ) : null}
+
+                  {bottomProducts.length > 0 ? (
+                    <div className="store-masonry-columns">
+                      {bottomProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          locale={locale}
+                          isFavorite={favorites.includes(product.id)}
+                          onToggleFavorite={toggleFavorite}
+                          productHref={`/product/${product.slug}`}
+                        />
                       ))}
                     </div>
-                  </div>
-                </section>
-              ) : null}
-
-              {bottomProducts.length > 0 ? (
-                <div className="store-masonry-columns">
-                  {bottomProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      locale={locale}
-                      isFavorite={favorites.includes(product.id)}
-                      onToggleFavorite={toggleFavorite}
-                      productHref={`/product/${product.slug}`}
-                    />
-                  ))}
-                </div>
-              ) : null}
+                  ) : null}
+                </>
+              )}
             </>
           ) : (
             <div className="store-soft-card rounded-[1.8rem] p-8 text-center">
