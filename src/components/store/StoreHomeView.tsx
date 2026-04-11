@@ -14,6 +14,7 @@ import StoreRareSignedRail from "./StoreRareSignedRail";
 type ExtendedStoreProduct = StoreProduct & {
   artist?: string | null;
   artist_name?: string | null;
+  image_count?: number | null;
 };
 
 type StoreHomeViewProps = {

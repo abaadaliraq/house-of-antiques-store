@@ -27,6 +27,8 @@ export type StoreProduct = {
   stock?: number | null;
   signed?: boolean | null;
   is_sensitive?: boolean | null;
+  image_count?: number | null;
+  
 };
 
 type Props = {
@@ -58,6 +60,7 @@ function getNumericPrice(value?: number | string | null) {
   if (value === null || value === undefined || value === "") return 0;
   const numeric = typeof value === "string" ? Number(value) : value;
   return Number.isNaN(numeric) ? 0 : numeric;
+  
 }
 
 function formatPrice(value?: number | string | null, currency?: string | null) {
@@ -135,6 +138,8 @@ export default function ProductCard({
   const isSensitive = product.is_sensitive === true;
   const isBlurred = isSensitive && !revealed;
   const isSold = product.status === "sold" || product.is_available === false;
+  const hasMultipleImages = (product.image_count || 0) > 1;
+  
 
   function handleAddToCart(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -197,7 +202,21 @@ export default function ProductCard({
 
       <Link href={href} className="block text-inherit no-underline">
         <div className="hoa-product-media product-masonry-media relative overflow-hidden rounded-[22px] bg-[#eee7dc] shadow-[0_14px_34px_rgba(0,0,0,0.06)]">
+       {hasMultipleImages ? (
+  <div
+    className="absolute left-3 top-3 z-30 inline-flex h-9 min-w-[44px] items-center justify-center gap-1.5 rounded-full border border-white/20 bg-[rgba(9,12,18,0.72)] px-2.5 text-[11px] font-extrabold text-white shadow-[0_12px_28px_rgba(0,0,0,0.26)] backdrop-blur-md"
+    aria-label="Multiple images"
+    title={`${product.image_count} images`}
+  >
+    <span className="relative inline-block h-[12px] w-[14px]">
+      <span className="absolute left-0 top-[3px] h-[8px] w-[10px] rounded-[3px] border border-white/85 bg-white/8" />
+      <span className="absolute left-[4px] top-0 h-[8px] w-[10px] rounded-[3px] border border-white bg-white/14 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]" />
+    </span>
+    <span className="tracking-[-0.01em]">{product.image_count}</span>
+  </div>
+) : null}
           {image ? (
+            
             <img
               src={image}
               alt={name}

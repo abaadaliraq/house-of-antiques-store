@@ -1,5 +1,5 @@
 'use client'
-
+import { Home } from "lucide-react";
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -122,7 +122,9 @@ function getFavoriteIds(): string[] {
     return Array.isArray(parsed) ? parsed : []
   } catch {
     return []
+    
   }
+  
 }
 
 function saveFavoriteIds(ids: string[]) {
@@ -457,65 +459,64 @@ export default function ProductDetailClient({
     }
     router.push('/')
   }
-
-  const prevTitle = prevProduct
-    ? pickLang(prevProduct.name_ar, prevProduct.name_en, prevProduct.name_ku, lang)
-    : ''
-
-  const nextTitle = nextProduct
-    ? pickLang(nextProduct.name_ar, nextProduct.name_en, nextProduct.name_ku, lang)
-    : ''
-
   return (
     <main className={styles.page} dir={lang === 'en' ? 'ltr' : 'rtl'}>
       <div className={styles.wrap}>
-        <div className={`${styles.productTopbar} ${styles.fadeUp}`}>
-          <button
-            type="button"
-            className={styles.topbarBack}
-            onClick={handleBack}
-            aria-label={t.back}
-            title={t.back}
-          >
-            ←
-          </button>
+       <div className={`${styles.productTopbar} ${styles.fadeUp}`}>
+  <button
+    type="button"
+    className={styles.topbarBack}
+    onClick={handleBack}
+    aria-label={t.back}
+    title={t.back}
+  >
+    ←
+  </button>
 
-          <div className={styles.topbarCenter}>
-            <span className={styles.topbarLabel}>{categoryName}</span>
-          </div>
+  <div className={styles.topbarCenter}>
+    <span className={styles.topbarLabel}>{categoryName}</span>
+  </div>
 
-          <div className={styles.topbarActions}>
-            <Link
-              href="/cart"
-              className={styles.topbarCart}
-              aria-label={t.cart}
-              title={t.cart}
-              id="store-cart-button"
-            >
-              <ShoppingBag size={17} />
-              {cartCount > 0 ? (
-                <span className={styles.topbarCartCount}>
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              ) : null}
-            </Link>
+  <div className={styles.topbarActions}>
+    <Link
+      href="/"
+      className={styles.topbarHome}
+      aria-label="Home"
+      title="Home"
+    >
+      <Home size={17} />
+    </Link>
 
-            <button
-              type="button"
-              className={
-                favorite
-                  ? `${styles.topbarFav} ${styles.topbarFavActive}`
-                  : styles.topbarFav
-              }
-              onClick={handleFavorite}
-              aria-label={t.favorite}
-              title={t.addToFavorites}
-            >
-              ♥
-            </button>
-          </div>
+    <Link
+      href="/cart"
+      className={styles.topbarCart}
+      aria-label={t.cart}
+      title={t.cart}
+      id="store-cart-button"
+    >
+      <ShoppingBag size={17} />
+      {cartCount > 0 ? (
+        <span className={styles.topbarCartCount}>
+          {cartCount > 99 ? "99+" : cartCount}
+        </span>
+      ) : null}
+    </Link>
+
+    <button
+      type="button"
+      className={
+        favorite
+          ? `${styles.topbarFav} ${styles.topbarFavActive}`
+          : styles.topbarFav
+      }
+      onClick={handleFavorite}
+      aria-label={t.favorite}
+      title={t.addToFavorites}
+    >
+      ♥
+    </button>
+  </div>    
         </div>
-
         <section className={styles.productLayout}>
           <div className={styles.viewerCol}>
             <div className={styles.viewerFrame}>
@@ -555,36 +556,34 @@ export default function ProductDetailClient({
             </div>
 
             {(prevProduct || nextProduct) ? (
-              <div className={styles.productNavArrows}>
-                {nextProduct ? (
-                  <Link
-                    href={`/product/${nextProduct.slug}`}
-                    className={styles.productNavArrow}
-                    aria-label={t.next}
-                    title={nextTitle}
-                  >
-                    <ChevronRight size={18} />
-                    <span className={styles.productNavText}>{nextTitle}</span>
-                  </Link>
-                ) : (
-                  <div />
-                )}
+  <div className={styles.productNavArrows}>
+    {nextProduct ? (
+      <Link
+        href={`/product/${nextProduct.slug}`}
+        className={styles.productNavArrow}
+        aria-label={t.next}
+        title={t.next}
+      >
+        <ChevronRight size={18} />
+      </Link>
+    ) : (
+      <span className={styles.productNavSpacer} />
+    )}
 
-                {prevProduct ? (
-                  <Link
-                    href={`/product/${prevProduct.slug}`}
-                    className={styles.productNavArrow}
-                    aria-label={t.previous}
-                    title={prevTitle}
-                  >
-                    <span className={styles.productNavText}>{prevTitle}</span>
-                    <ChevronLeft size={18} />
-                  </Link>
-                ) : (
-                  <div />
-                )}
-              </div>
-            ) : null}
+    {prevProduct ? (
+      <Link
+        href={`/product/${prevProduct.slug}`}
+        className={styles.productNavArrow}
+        aria-label={t.previous}
+        title={t.previous}
+      >
+        <ChevronLeft size={18} />
+      </Link>
+    ) : (
+      <span className={styles.productNavSpacer} />
+    )}
+  </div>
+) : null}
 
             {gallery.length > 1 ? (
               <div className={styles.thumbRail}>
@@ -860,7 +859,7 @@ export default function ProductDetailClient({
           )}
         </section>
 
-        {copied ? <div className={styles.toast}>{t.linkCopied}</div> : null}
+            {copied ? <div className={styles.toast}>{t.linkCopied}</div> : null}
         {cartAdded ? <div className={styles.toastAlt}>{t.addedToCart}</div> : null}
       </div>
     </main>
