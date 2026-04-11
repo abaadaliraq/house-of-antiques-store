@@ -2,7 +2,7 @@ import StoreHomeView from "../components/store/StoreHomeView";
 import { supabase } from "../lib/supabase";
 
 export default async function StorePage() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .select(`
       id,
@@ -23,10 +23,15 @@ export default async function StorePage() {
       status,
       stock,
       signed,
-      is_sensitive
+      is_sensitive,
+      artist_name
     `)
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Supabase products query error:", error);
+  }
 
   const products = Array.isArray(data) ? data : [];
 

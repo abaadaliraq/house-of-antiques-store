@@ -7,9 +7,11 @@ const slides = [
   '/cover2.jpg',
   '/cover3.jpg',
   '/cover4.jpg',
+  '/cover5.jpg',
+  '/cover6.jpg',
 ]
 
-const AUTO_DELAY = 3500
+const AUTO_DELAY = 3000
 
 export default function StoreHero() {
   const [activeIndex, setActiveIndex] = useState(0)

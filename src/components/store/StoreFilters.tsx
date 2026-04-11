@@ -62,9 +62,9 @@ export default function StoreFilters({
 
   const itemsLabel =
     locale === "ar"
-      ? `عدد القطع: ${totalCount}`
+      ? `عدد القطع ${totalCount}`
       : locale === "ku"
-      ? `ژمارەی پارچەکان: ${totalCount}`
+      ? `ژمارەی پارچەکان ${totalCount}`
       : `${totalCount} items`;
 
   const sortOptions: { value: StoreSortValue; label: string }[] = [
@@ -72,7 +72,7 @@ export default function StoreFilters({
       value: "price_desc",
       label:
         locale === "ar"
-          ? "القطع الأعلى سعراً إلى الأدنى"
+          ? "الأعلى سعراً إلى الأدنى"
           : locale === "ku"
           ? "لە بەرزترین نرخ بۆ نزمترین"
           : "Highest price to lowest",
@@ -81,7 +81,7 @@ export default function StoreFilters({
       value: "price_asc",
       label:
         locale === "ar"
-          ? "القطع الأدنى سعراً إلى الأعلى"
+          ? "الأدنى سعراً إلى الأعلى"
           : locale === "ku"
           ? "لە نزمترین نرخ بۆ بەرزترین"
           : "Lowest price to highest",
@@ -90,9 +90,9 @@ export default function StoreFilters({
       value: "latest",
       label:
         locale === "ar"
-          ? "القطع التي وصلت حديثاً"
+          ? "وصلت حديثاً"
           : locale === "ku"
-          ? "پارچە تازە هاتووەکان"
+          ? "تازە هاتووەکان"
           : "Newest arrivals",
     },
     {
@@ -116,42 +116,48 @@ export default function StoreFilters({
   ];
 
   return (
-    <section className="store-filters-refined">
-      <div className="store-filters-refined__head">
-        <div className="store-filters-refined__copy">
-          <p className="store-filters-refined__kicker">{title}</p>
-          <h2 className="store-filters-refined__title">{title}</h2>
-          <p className="store-filters-refined__sub">{subtitle}</p>
+    <section className="store-filters-lux">
+      <div className="store-filters-lux__hero">
+        <div className="store-filters-lux__copy">
+          <p className="store-filters-lux__eyebrow">
+            {locale === "ar"
+              ? "متجر بيت التحفيات"
+              : locale === "ku"
+              ? "فرۆشگای ماڵی تحف"
+              : "House of Antiques Store"}
+          </p>
+
+          <h2 className="store-filters-lux__title">{title}</h2>
+          <p className="store-filters-lux__subtitle">{subtitle}</p>
         </div>
 
         <button
           type="button"
           onClick={onOpenAdvancedFilters}
-          className="store-filters-refined__filterBtn"
+          className="store-filters-lux__filterBtn"
         >
           <SlidersHorizontal size={14} />
-          {filterLabel}
+          <span>{filterLabel}</span>
         </button>
       </div>
 
-      <div className="store-filters-refined__search flex items-center gap-3">
-        <Search size={18} className="store-filters-refined__searchIcon" />
-
-        <input
-          type="text"
-          value={searchValue}
-          onChange={(e) => onSearchChange?.(e.target.value)}
-          placeholder={placeholder}
-          className="store-filters-refined__input flex-1"
-        />
-
-        <div className="shrink-0 whitespace-nowrap text-xs font-medium text-black/55">
-          {itemsLabel}
+      <div className="store-filters-lux__searchWrap">
+        <div className="store-filters-lux__searchBox">
+          <Search size={18} className="store-filters-lux__searchIcon" />
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            placeholder={placeholder}
+            className="store-filters-lux__input"
+          />
         </div>
+
+        <div className="store-filters-lux__count">{itemsLabel}</div>
       </div>
 
       {!!categories.length && (
-        <div className="store-filters-refined__chips">
+        <div className="store-filters-lux__chips">
           {categories.map((category) => {
             const isActive = activeCategory === category.id;
 
@@ -162,8 +168,8 @@ export default function StoreFilters({
                 onClick={() => onCategoryChange?.(category.id)}
                 className={
                   isActive
-                    ? "store-filters-refined__chip is-active"
-                    : "store-filters-refined__chip"
+                    ? "store-filters-lux__chip is-active"
+                    : "store-filters-lux__chip"
                 }
               >
                 {category.label}
@@ -179,25 +185,23 @@ export default function StoreFilters({
             type="button"
             aria-label="Close filters"
             onClick={onCloseAdvancedFilters}
-            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[3px]"
           />
 
-          <div className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-2xl rounded-t-[2rem] border border-black/10 bg-[#f8f5ef] p-4 shadow-[0_-18px_50px_rgba(0,0,0,0.18)]">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-[1.05rem] font-semibold text-black">
-                {sortTitle}
-              </h3>
+          <div className="store-filters-lux__drawer">
+            <div className="store-filters-lux__drawerHead">
+              <h3 className="store-filters-lux__drawerTitle">{sortTitle}</h3>
 
               <button
                 type="button"
                 onClick={onCloseAdvancedFilters}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-black"
+                className="store-filters-lux__closeBtn"
               >
                 <X size={16} />
               </button>
             </div>
 
-            <div className="grid gap-2">
+            <div className="store-filters-lux__drawerOptions">
               {sortOptions.map((option) => {
                 const active = sortValue === option.value;
 
@@ -206,12 +210,11 @@ export default function StoreFilters({
                     key={option.value}
                     type="button"
                     onClick={() => onSortChange?.(option.value)}
-                    className={[
-                      "rounded-[1rem] border px-4 py-3 text-right text-sm transition",
+                    className={
                       active
-                        ? "border-black bg-black text-white"
-                        : "border-black/10 bg-white text-black hover:bg-black/[0.03]",
-                    ].join(" ")}
+                        ? "store-filters-lux__sortBtn is-active"
+                        : "store-filters-lux__sortBtn"
+                    }
                   >
                     {option.label}
                   </button>

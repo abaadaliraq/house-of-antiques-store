@@ -127,6 +127,7 @@ const ARTIST_SECTIONS = [
     },
   },
 ] as const;
+
 function normalizeText(value?: string | null) {
   return (value || "").toLowerCase().trim();
 }
@@ -263,10 +264,7 @@ function normalizeArtistKey(value?: string | null) {
     return "talib";
   }
 
-  if (
-    raw.includes("سعد") ||
-    raw.includes("saad")
-  ) {
+  if (raw.includes("سعد") || raw.includes("saad")) {
     return "saad";
   }
 
@@ -322,6 +320,7 @@ function normalizeArtistKey(value?: string | null) {
 
   return "unsigned";
 }
+
 function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
   const groups: Record<string, ExtendedStoreProduct[]> = {
     fouad: [],
@@ -338,23 +337,8 @@ function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
   };
 
   for (const product of products) {
-    const artistSource = [
-      product.artist_name,
-      product.artist,
-      product.name_ar,
-      product.name_en,
-      product.name_ku,
-      product.description_ar,
-      product.description_en,
-      product.description_ku,
-      product.slug,
-      product.sku,
-    ]
-      .map((item) => normalizeText(item))
-      .filter(Boolean)
-      .join(" ");
-
-    const artistKey = normalizeArtistKey(artistSource);
+    const explicitArtist = product.artist_name || product.artist || "";
+    const artistKey = normalizeArtistKey(explicitArtist);
 
     if (!groups[artistKey]) {
       groups.unsigned.push(product);
@@ -468,15 +452,11 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     });
 
     if (sortValue === "featured") {
-      result = result.filter(
-        (product) => product.is_featured === true && !isSoldProduct(product)
-      );
+      result = result.filter((product) => product.is_featured === true);
     }
 
     if (sortValue === "signed") {
-      result = result.filter(
-        (product) => product.signed === true && !isSoldProduct(product)
-      );
+      result = result.filter((product) => product.signed === true);
     }
 
     if (sortValue === "price_desc") {
@@ -517,7 +497,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     if (!isHomeDefaultView) return [];
 
     const explicit = visibleProducts.filter(
-      (product) => product.is_featured === true && !isSoldProduct(product)
+      (product) => product.is_featured === true
     );
 
     if (explicit.length >= 6) return explicit.slice(0, 12);
@@ -525,7 +505,6 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     const merged = [...explicit];
 
     for (const product of visibleProducts) {
-      if (isSoldProduct(product)) continue;
       const exists = merged.some((item) => item.id === product.id);
       if (!exists) merged.push(product);
       if (merged.length >= 12) break;
@@ -538,7 +517,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
     if (!isHomeDefaultView) return [];
 
     return visibleProducts
-      .filter((product) => product.signed === true && !isSoldProduct(product))
+      .filter((product) => product.signed === true)
       .slice(0, 10);
   }, [visibleProducts, isHomeDefaultView]);
 
@@ -919,40 +898,35 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                     return (
                       <section
                         key={section.key}
-                        className="featured-rail-section paintings-artist-rail"
+                        className="space-y-4 rounded-[1.6rem] border border-white/8 bg-white/[0.02] p-4 sm:p-5"
                       >
-                        <div className="featured-rail-section__head">
-                          <div>
-                            <p className="featured-rail-section__kicker">
-                              {locale === "ar"
-                                ? "أعمال فنان"
-                                : locale === "ku"
-                                ? "کارەکانی هونەرمەند"
-                                : "Artist collection"}
-                            </p>
-                            <h2 className="featured-rail-section__title">
-                              {section.label[locale]}
-                            </h2>
-                            <p className="featured-rail-section__count">
-                              {items.length} items
-                            </p>
-                          </div>
+                        <div className="flex flex-col gap-1">
+                          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/38">
+                            {locale === "ar"
+                              ? "قسم الفنان"
+                              : locale === "ku"
+                              ? "بەشی هونەرمەند"
+                              : "Artist section"}
+                          </p>
+
+                          <h3 className="text-[1.08rem] font-semibold text-white sm:text-[1.25rem]">
+                            {section.label[locale]}
+                          </h3>
+
+                          <p className="text-sm text-white/45">{items.length} items</p>
                         </div>
 
-                        <div className="featured-rail-section__viewport">
-                          <div className="featured-rail-section__track">
-                            {items.map((product) => (
-                              <div key={product.id} className="featured-rail-card">
-                                <ProductCard
-                                  product={product}
-                                  locale={locale}
-                                  isFavorite={favorites.includes(product.id)}
-                                  onToggleFavorite={toggleFavorite}
-                                  productHref={`/product/${product.slug}`}
-                                />
-                              </div>
-                            ))}
-                          </div>
+                        <div className="store-ordered-grid">
+                          {items.map((product) => (
+                            <ProductCard
+                              key={product.id}
+                              product={product}
+                              locale={locale}
+                              isFavorite={favorites.includes(product.id)}
+                              onToggleFavorite={toggleFavorite}
+                              productHref={`/product/${product.slug}`}
+                            />
+                          ))}
                         </div>
                       </section>
                     );
@@ -960,7 +934,13 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                 </>
               ) : (
                 <>
-                  <div className="store-masonry-columns">
+                  <div
+                    className={
+                      sortValue === "default"
+                        ? "store-masonry-columns"
+                        : "store-ordered-grid"
+                    }
+                  >
                     {topProducts.map((product) => (
                       <ProductCard
                         key={product.id}
@@ -1023,7 +1003,13 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
                   ) : null}
 
                   {bottomProducts.length > 0 ? (
-                    <div className="store-masonry-columns">
+                    <div
+                      className={
+                        sortValue === "default"
+                          ? "store-masonry-columns"
+                          : "store-ordered-grid"
+                      }
+                    >
                       {bottomProducts.map((product) => (
                         <ProductCard
                           key={product.id}

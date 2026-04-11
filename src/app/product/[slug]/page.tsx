@@ -82,6 +82,19 @@ type SimilarProductRow = {
   period_en?: string | null;
   period_ku?: string | null;
   created_at?: string | null;
+  status?: string | null;
+  is_available?: boolean | null;
+};
+
+type ProductNavItem = {
+  id: string;
+  slug: string;
+  name_ar: string | null;
+  name_en: string | null;
+  name_ku: string | null;
+  featured_image: string | null;
+  status: string | null;
+  is_available: boolean | null;
 };
 
 function normalizeText(value?: string | null) {
@@ -109,7 +122,9 @@ function includesAny(text: string, needles: string[]) {
 function getFamilyCategories(product: ProductRow) {
   const category = normalizeText(product.category_slug);
   const material = normalizeText(
-    [product.material_ar, product.material_en, product.material_ku].filter(Boolean).join(" ")
+    [product.material_ar, product.material_en, product.material_ku]
+      .filter(Boolean)
+      .join(" ")
   );
   const source = normalizeText(product.source_category);
 
@@ -155,7 +170,9 @@ function getFamilyCategories(product: ProductRow) {
     return ["furniture", "wood"];
   }
 
-  return category ? [category] : ["furniture", "wood", "accessories", "silver", "copper"];
+  return category
+    ? [category]
+    : ["furniture", "wood", "accessories", "silver", "copper"];
 }
 
 function scoreProduct(candidate: SimilarProductRow, current: ProductRow) {
@@ -164,42 +181,36 @@ function scoreProduct(candidate: SimilarProductRow, current: ProductRow) {
   const currentCategory = normalizeText(current.category_slug);
   const currentSource = normalizeText(current.source_category);
   const currentMaterial = normalizeText(
-    [current.material_ar, current.material_en, current.material_ku].filter(Boolean).join(" ")
+    [current.material_ar, current.material_en, current.material_ku]
+      .filter(Boolean)
+      .join(" ")
   );
   const currentYear = normalizeText(current.year_text);
   const currentPeriod = normalizeText(
-    [current.period_ar, current.period_en, current.period_ku].filter(Boolean).join(" ")
+    [current.period_ar, current.period_en, current.period_ku]
+      .filter(Boolean)
+      .join(" ")
   );
 
   const candidateCategory = normalizeText(candidate.category_slug);
   const candidateSource = normalizeText(candidate.source_category);
   const candidateMaterial = normalizeText(
-    [candidate.material_ar, candidate.material_en, candidate.material_ku].filter(Boolean).join(" ")
+    [candidate.material_ar, candidate.material_en, candidate.material_ku]
+      .filter(Boolean)
+      .join(" ")
   );
   const candidateYear = normalizeText(candidate.year_text);
   const candidatePeriod = normalizeText(
-    [candidate.period_ar, candidate.period_en, candidate.period_ku].filter(Boolean).join(" ")
+    [candidate.period_ar, candidate.period_en, candidate.period_ku]
+      .filter(Boolean)
+      .join(" ")
   );
 
-  if (candidateCategory && candidateCategory === currentCategory) {
-    score += 120;
-  }
-
-  if (candidateSource && currentSource && candidateSource === currentSource) {
-    score += 140;
-  }
-
-  if (candidateMaterial && currentMaterial && candidateMaterial === currentMaterial) {
-    score += 110;
-  }
-
-  if (candidateYear && currentYear && candidateYear === currentYear) {
-    score += 45;
-  }
-
-  if (candidatePeriod && currentPeriod && candidatePeriod === currentPeriod) {
-    score += 40;
-  }
+  if (candidateCategory && candidateCategory === currentCategory) score += 120;
+  if (candidateSource && currentSource && candidateSource === currentSource) score += 140;
+  if (candidateMaterial && currentMaterial && candidateMaterial === currentMaterial) score += 110;
+  if (candidateYear && currentYear && candidateYear === currentYear) score += 45;
+  if (candidatePeriod && currentPeriod && candidatePeriod === currentPeriod) score += 40;
 
   const currentTextBlob = normalizeText(
     [
@@ -240,33 +251,10 @@ function scoreProduct(candidate: SimilarProductRow, current: ProductRow) {
   const copperWords = ["نحاس", "copper", "دلة", "ابريق", "إبريق", "وعاء"];
   const accessoryWords = ["اكسسوار", "إكسسوار", "accessory", "belt", "حزام", "سوار", "قلادة", "ولاعة"];
 
-  if (
-    includesAny(currentTextBlob, furnitureWords) &&
-    includesAny(candidateTextBlob, furnitureWords)
-  ) {
-    score += 55;
-  }
-
-  if (
-    includesAny(currentTextBlob, silverWords) &&
-    includesAny(candidateTextBlob, silverWords)
-  ) {
-    score += 55;
-  }
-
-  if (
-    includesAny(currentTextBlob, copperWords) &&
-    includesAny(candidateTextBlob, copperWords)
-  ) {
-    score += 55;
-  }
-
-  if (
-    includesAny(currentTextBlob, accessoryWords) &&
-    includesAny(candidateTextBlob, accessoryWords)
-  ) {
-    score += 45;
-  }
+  if (includesAny(currentTextBlob, furnitureWords) && includesAny(candidateTextBlob, furnitureWords)) score += 55;
+  if (includesAny(currentTextBlob, silverWords) && includesAny(candidateTextBlob, silverWords)) score += 55;
+  if (includesAny(currentTextBlob, copperWords) && includesAny(candidateTextBlob, copperWords)) score += 55;
+  if (includesAny(currentTextBlob, accessoryWords) && includesAny(candidateTextBlob, accessoryWords)) score += 45;
 
   return score;
 }
@@ -373,9 +361,10 @@ export default async function ProductPage({
       period_ar,
       period_en,
       period_ku,
-      created_at
+      created_at,
+      status,
+      is_available
     `)
-    .eq("is_available", true)
     .neq("id", product.id)
     .in("category_slug", familyCategories)
     .order("created_at", { ascending: false })
@@ -403,9 +392,10 @@ export default async function ProductPage({
       period_ar,
       period_en,
       period_ku,
-      created_at
+      created_at,
+      status,
+      is_available
     `)
-    .eq("is_available", true)
     .neq("id", product.id)
     .eq("category_slug", product.category_slug ?? "")
     .order("created_at", { ascending: false })
@@ -433,9 +423,10 @@ export default async function ProductPage({
       period_ar,
       period_en,
       period_ku,
-      created_at
+      created_at,
+      status,
+      is_available
     `)
-    .eq("is_available", true)
     .neq("id", product.id)
     .eq("material_ar", product.material_ar ?? "")
     .order("created_at", { ascending: false })
@@ -456,14 +447,35 @@ export default async function ProductPage({
     .sort((a, b) => b._score - a._score);
 
   const closeMatches = scored.slice(0, 12).map(({ _score, ...item }) => item);
+  const styleMatches = scored.slice(12, 30).map(({ _score, ...item }) => item);
+  const extendedMatches = scored.slice(30, 90).map(({ _score, ...item }) => item);
 
-  const styleMatches = scored
-    .slice(12, 30)
-    .map(({ _score, ...item }) => item);
+  const { data: navProducts } = await supabase
+    .from("products")
+    .select(`
+      id,
+      slug,
+      name_ar,
+      name_en,
+      name_ku,
+      featured_image,
+      status,
+      is_available
+    `)
+    .order("created_at", { ascending: false });
 
-  const extendedMatches = scored
-    .slice(30, 90)
-    .map(({ _score, ...item }) => item);
+  const navList = (navProducts ?? []).filter((item) => item.slug) as ProductNavItem[];
+  const currentIndex = navList.findIndex((item) => item.slug === slug);
+
+  const prevProduct =
+    currentIndex >= 0 && currentIndex < navList.length - 1
+      ? navList[currentIndex + 1]
+      : null;
+
+  const nextProduct =
+    currentIndex > 0
+      ? navList[currentIndex - 1]
+      : null;
 
   return (
     <ProductDetailClient
@@ -472,6 +484,8 @@ export default async function ProductPage({
       closeMatches={closeMatches}
       styleMatches={styleMatches}
       extendedMatches={extendedMatches}
+      prevProduct={prevProduct}
+      nextProduct={nextProduct}
     />
   );
 }

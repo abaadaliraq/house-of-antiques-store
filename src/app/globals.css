@@ -282,7 +282,7 @@ a {
 .store-hero {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 550px;
   overflow: hidden;
   background: #eae4dc;
 }
@@ -359,30 +359,6 @@ a {
 .store-hero__dots {
   display: none !important;
 }
-
-/* =========================
-   FILTERS / SEARCH
-========================= */
-
-.store-filters {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 16px 16px 8px;
-}
-
-.store-filters__searchRow {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.store-filters__row {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  align-items: stretch;
-}
-
 .store-search,
 .store-select,
 .store-select--static {
@@ -535,133 +511,41 @@ a {
   color: var(--text-soft);
 }
 
-/* =========================
-   FEATURED / HORIZONTAL RAILS
-========================= */
-
-.store-featured {
-  max-width: 1100px;
-  margin: 16px auto 0;
+.featured-rail-section__head--simple {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: min(1400px, calc(100vw - 32px));
+  margin: 0 auto 10px;
   padding: 0 16px;
 }
 
-.store-featured__head {
-  margin-bottom: 10px;
+.featured-rail-band {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 14px 0 8px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.1)),
+    url("/featured-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.store-featured__title {
-  font-size: 18px;
-  font-weight: 800;
-  margin: 0;
-  color: var(--text);
-}
-
-.store-featured__rail {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 8px;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.store-featured__rail::-webkit-scrollbar {
+.featured-rail-band::before {
   display: none;
 }
 
-.store-featured__card {
-  min-width: 212px;
-  max-width: 212px;
-  flex: 0 0 212px;
-  border-radius: 18px;
-  overflow: hidden;
-  text-decoration: none;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
-  scroll-snap-align: start;
-}
-
-.store-featured__imageWrap {
-  height: 138px;
-  overflow: hidden;
-  background: #ece7df;
-}
-
-.store-featured__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.store-featured__body {
-  padding: 10px;
-}
-
-.store-featured__name {
-  font-size: 13px;
-  line-height: 1.55;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-
-.store-featured__price {
-  font-size: 12px;
-  color: var(--text-soft);
-}
-
-/* rail version الأكبر */
-.featured-rail-section {
-  display: grid;
-  gap: 14px;
-  width: 100%;
-}
-
-.featured-rail-section__head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.featured-rail-section__kicker {
-  margin: 0 0 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.featured-rail-section__title {
-  margin: 0;
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.featured-rail-section__count {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: var(--text-faint);
-}
-
-.featured-rail-section__all {
-  text-decoration: none;
-  color: var(--text-soft);
-  font-size: 0.93rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.featured-rail-section__all:hover {
-  color: var(--text);
+.featured-rail-band .featured-rail-section__viewport {
+  padding: 0 16px 0;
 }
 
 .featured-rail-section__viewport {
@@ -669,52 +553,29 @@ a {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 14px;
-
+  padding-bottom: 0;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.28) rgba(0, 0, 0, 0.08);
-}
-
-.featured-rail-section__viewport::-webkit-scrollbar {
-  height: 8px;
-}
-
-.featured-rail-section__viewport::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-}
-
-.featured-rail-section__viewport::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.28);
-  border-radius: 999px;
-}
-
-.featured-rail-section__viewport::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.42);
 }
 
 .featured-rail-section__track {
   display: flex;
   flex-wrap: nowrap;
-  gap: 14px;
+  gap: 10px;
   width: max-content;
   min-width: 100%;
 }
 
-.featured-rail-card {
-  flex: 0 0 236px;
-  width: 236px;
-  text-decoration: none;
-  color: inherit;
+.featured-rail-card--compact {
+  flex: 0 0 185px;
+  width: 185px;
 }
 
-.featured-rail-card__media {
+.featured-rail-card__media--compact {
   position: relative;
-  height: 272px;
-  border-radius: 1.5rem;
+  height: 132px;
+  border-radius: 15px;
   overflow: hidden;
-  background: #e9e3db;
-  box-shadow: var(--shadow-soft);
+  background: #161616;
 }
 
 .featured-rail-card__image {
@@ -722,282 +583,69 @@ a {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.35s ease;
-}
-
-.featured-rail-card:hover .featured-rail-card__image {
-  transform: scale(1.04);
-}
-
-.featured-rail-card__fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(20, 20, 20, 0.42);
-  background: linear-gradient(135deg, #ece5dc, #ddd4c7);
 }
 
 .featured-rail-card__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(12, 12, 13, 0.72), rgba(12, 12, 13, 0.08) 56%, transparent);
-}
-
-.featured-rail-card__content {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  padding: 14px;
-  color: #fff;
-}
-
-.featured-rail-card__category,
-.featured-rail-card__price {
   display: none !important;
 }
 
-.featured-rail-card__name {
-  margin: 0;
-  font-size: 0.96rem;
-  line-height: 1.55;
-  font-weight: 700;
-}
-
-.featured-rail-card__price {
-  margin-top: 8px;
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.76);
-}
-
-/* =========================
-   SIGNED / MID SECTION
-========================= */
-
-.rare-signed-section {
-  margin: 28px 0;
-  border-radius: 1.8rem;
-  background: var(--black);
-  color: #fff;
-  padding: 18px 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
-}
-
-.rare-signed-section__head {
-  margin-bottom: 12px;
-}
-
-.rare-signed-section__kicker {
-  margin: 0 0 5px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.48);
-}
-
-.rare-signed-section__title {
-  margin: 0;
-  font-size: 1.18rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.featured-rail-card__content--below {
+  position: static;
+  inset: auto;
+  padding: 8px 2px 0;
   color: #fff;
 }
 
-.rare-signed-section__rail {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 6px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.rare-signed-section__rail::-webkit-scrollbar {
-  display: none;
-}
-
-.rare-signed-card {
-  min-width: 190px;
-  max-width: 190px;
-  flex: 0 0 190px;
-  border-radius: 1.3rem;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.22s ease, border-color 0.22s ease;
-}
-
-.rare-signed-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.rare-signed-card__media {
-  height: 190px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.rare-signed-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.rare-signed-card__fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.52);
-  background: linear-gradient(135deg, #111, #222);
-}
-
-.rare-signed-card__body {
-  padding: 11px;
-}
-
-.rare-signed-card__name {
+.featured-rail-card__name--compact {
   font-size: 0.9rem;
-  line-height: 1.55;
+  line-height: 1.48;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 5px;
-}
-
-.rare-signed-card__price {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.68);
-}
-
-/* النسخة الباند */
-.rare-signed-band {
-  position: relative;
-  left: 50%;
-  right: 50%;
-  width: 100vw;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  margin-top: 28px;
-  margin-bottom: 28px;
-  background: #0c0c0d;
-  color: #fff;
-  padding: 22px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
+  text-shadow: none;
 }
 
-.rare-signed-band__inner {
-  width: 100%;
+.featured-rail-section__kicker,
+.featured-rail-section__count,
+.featured-rail-section__all,
+.featured-rail-card__price,
+.featured-rail-card__category {
+  display: none !important;
 }
 
-.rare-signed-band__head {
-  width: min(1400px, calc(100vw - 32px));
-  margin: 0 auto 14px;
-  padding: 0 16px;
-}
+@media (max-width: 720px) {
+  .featured-rail-band {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    padding: 10px 0 6px;
+  }
 
-.rare-signed-band__kicker {
-  margin: 0 0 6px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.48);
-}
+  .featured-rail-section__head--simple {
+    margin-bottom: 8px;
+  }
 
-.rare-signed-band__title {
-  margin: 0;
-  font-size: clamp(1.15rem, 1.8vw, 1.7rem);
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-}
+  .featured-rail-section__title {
+    font-size: 1rem;
+  }
 
-.rare-signed-band__rail {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0 16px 6px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
+  .featured-rail-card--compact {
+    flex: 0 0 128px;
+    width: 128px;
+  }
 
-.rare-signed-band__rail::-webkit-scrollbar {
-  display: none;
-}
+  .featured-rail-card__media--compact {
+    height: 92px;
+    border-radius: 12px;
+  }
 
-.rare-signed-band__card {
-  min-width: 230px;
-  max-width: 230px;
-  flex: 0 0 230px;
-  text-decoration: none;
-  color: inherit;
+  .featured-rail-card__name--compact {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
 }
-
-.rare-signed-band__media {
-  position: relative;
-  height: 300px;
-  overflow: hidden;
-  border-radius: 18px;
-  background: #111;
-}
-
-.rare-signed-band__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.35s ease;
-}
-
-.rare-signed-band__card:hover .rare-signed-band__image {
-  transform: scale(1.04);
-}
-
-.rare-signed-band__fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #111, #222);
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.rare-signed-band__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.84), rgba(0, 0, 0, 0.18) 55%, transparent);
-}
-
-.rare-signed-band__content {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  padding: 14px;
-}
-
-.rare-signed-band__name {
-  font-size: 0.96rem;
-  line-height: 1.55;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.rare-signed-band__price {
-  font-size: 0.86rem;
-  color: rgba(255, 255, 255, 0.72);
-}
-
 
 /* =========================
    FOOTER
@@ -1677,104 +1325,10 @@ a {
   .store-topbar-brandText {
     font-size: 0.88rem;
   }
-
-  .store-filters__searchRow,
-  .store-filters__row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .store-grid {
     column-count: 2;
     column-gap: 12px;
   }
-  .store-featured__card {
-    min-width: 186px;
-    max-width: 186px;
-    flex-basis: 186px;
-    border-radius: 16px;
-  }
-
-  .store-featured__imageWrap {
-    height: 124px;
-  }
-
-  .store-featured__body {
-    padding: 9px;
-  }
-
-  .store-featured__name {
-    font-size: 12px;
-    line-height: 1.45;
-  }
-
-  .featured-rail-section__head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .featured-rail-card {
-    flex: 0 0 200px;
-    width: 200px;
-  }
-
-  .featured-rail-card__media {
-    height: 248px;
-    border-radius: 1.3rem;
-  }
-
-  .featured-rail-card__name {
-    font-size: 0.9rem;
-  }
-
-  .rare-signed-section {
-    padding: 16px 14px;
-    border-radius: 1.4rem;
-    margin: 24px 0;
-  }
-
-  .rare-signed-section__title {
-    font-size: 1.04rem;
-  }
-
-  .rare-signed-card {
-    min-width: 172px;
-    max-width: 172px;
-    flex-basis: 172px;
-  }
-
-  .rare-signed-card__media {
-    height: 172px;
-  }
-
-  .rare-signed-card__name {
-    font-size: 0.84rem;
-    line-height: 1.45;
-  }
-
-  .rare-signed-card__price {
-    font-size: 0.78rem;
-  }
-
-  .rare-signed-band {
-    padding: 18px 0;
-  }
-
-  .rare-signed-band__card {
-    min-width: 200px;
-    max-width: 200px;
-    flex-basis: 200px;
-  }
-
-  .rare-signed-band__media {
-    height: 258px;
-    border-radius: 16px;
-  }
-
-  .rare-signed-band__title {
-    font-size: 1.06rem;
-  }
-
   .store-reveal {
     min-height: 112vh;
   }
@@ -2041,160 +1595,270 @@ a {
 #store-cart-button span {
   animation: hoaCartPulse 0.34s ease;
 }
-/* =========================
-   REFINED HERO FILTER BLOCK
-========================= */
+.store-filters-lux {
+  display: grid;
+  gap: 14px;
+}
 
-.store-filters-refined__kicker {
+.store-filters-lux__hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.store-filters-lux__copy {
+  min-width: 0;
+}
+
+.store-filters-lux__eyebrow {
   margin: 0 0 6px;
-  font-size: 11px;
+  font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.42);
 }
 
-.store-filters-refined__title {
+.store-filters-lux__title {
   margin: 0;
-  font-size: clamp(1.4rem, 2.8vw, 2.3rem);
-  line-height: 1.08;
+  font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+  line-height: 1.05;
   font-weight: 800;
-  color: #fff;
   letter-spacing: -0.03em;
+  color: #fff;
 }
 
-.store-filters-refined__sub {
+.store-filters-lux__subtitle {
   margin: 8px 0 0;
-  font-size: 0.96rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.62);
 }
 
-.store-filters-refined__copy {
-  min-width: 0;
-}
-.store-filters-refined__filterBtn {
+.store-filters-lux__filterBtn {
   flex-shrink: 0;
-  height: 42px;
-  padding: 0 14px;
+  height: 36px;
+  min-width: auto;
+  padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid rgba(122, 15, 23, 0.55);
-  background: linear-gradient(135deg, #8d121c, #5d0c13);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.store-filters-lux__filterBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.store-filters-lux__searchWrap {
+  display: grid;
+  gap: 8px;
+}
+
+.store-filters-lux__searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
+    rgba(10, 14, 19, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 30px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.store-filters-lux__searchIcon {
+  position: absolute;
+  right: 18px;
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+}
+
+.store-filters-lux__input {
+  width: 100%;
+  height: 56px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  padding: 0 52px 0 18px;
+  font-size: 15px;
+}
+
+.store-filters-lux__input::placeholder {
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.store-filters-lux__count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.42);
+  padding-inline: 4px;
+}
+
+.store-filters-lux__chips {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  overflow: visible;
+}
+
+.store-filters-lux__chip {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f141a;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: center;
+  transition: 0.2s ease;
+}
+
+.store-filters-lux__chip:hover {
+  background: #171d24;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.store-filters-lux__chip.is-active {
+  background: linear-gradient(135deg, #9f1420, #700d16);
+  border-color: rgba(159, 20, 32, 0.72);
+  color: #fff;
+}
+
+.store-filters-lux__drawer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 50;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 640px;
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0b0f14;
+  padding: 16px;
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.store-filters-lux__drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.store-filters-lux__drawerTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.store-filters-lux__closeBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.store-filters-lux__drawerOptions {
+  display: grid;
   gap: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.store-filters-refined__filterBtn:hover {
-  background: linear-gradient(135deg, #a51421, #6c0f18);
-}
-
-.store-filters-refined__search {
-  margin-top: 14px;
-  position: relative;
-}
-
-.store-filters-refined__searchIcon {
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.42);
-}
-
-.store-filters-refined__input {
-  width: 100%;
-  height: 52px;
-  border-radius: 999px;
+.store-filters-lux__sortBtn {
+  min-height: 44px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #12161b;
-  padding: 0 48px 0 18px;
-  font-size: 15px;
+  background: #12171d;
   color: #fff;
-  outline: none;
-}
-
-.store-filters-refined__input::placeholder {
-  color: rgba(255, 255, 255, 0.42);
-}
-.store-filters-refined__chips {
-  margin-top: 14px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.store-filters-refined__chip {
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #11161b;
-  color: rgba(255, 255, 255, 0.78);
+  text-align: right;
+  padding: 0 14px;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.store-filters-refined__chip:hover {
-  border-color: rgba(122, 15, 23, 0.45);
-  background: #171c22;
+.store-filters-lux__sortBtn.is-active {
+  background: linear-gradient(135deg, #9f1420, #700d16);
+  border-color: rgba(159, 20, 32, 0.72);
 }
 
-.store-filters-refined__chip.is-active {
-  background: linear-gradient(135deg, #8d121c, #5d0c13);
-  color: #fff;
-  border-color: rgba(122, 15, 23, 0.7);
+@media (max-width: 1024px) {
+  .store-filters-lux__chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
+
 @media (max-width: 720px) {
-  .store-filters-refined {
-    margin-top: -22px;
-    border-radius: 28px;
-    padding: 16px;
+  .store-filters-lux {
+    gap: 12px;
   }
 
-  .store-filters-refined__head {
-    flex-direction: column;
-    align-items: stretch;
+  .store-filters-lux__hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 10px;
   }
 
-  .store-filters-refined__filterBtn {
-    width: fit-content;
-    height: 38px;
-    padding: 0 12px;
-    font-size: 12px;
+  .store-filters-lux__title {
+    font-size: 1.05rem;
   }
 
-  .store-filters-refined__title {
-    font-size: 1.15rem;
+  .store-filters-lux__subtitle {
+    font-size: 0.84rem;
+    line-height: 1.6;
   }
 
-  .store-filters-refined__sub {
-    font-size: 0.88rem;
+  .store-filters-lux__filterBtn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+    align-self: start;
   }
 
-  .store-filters-refined__input {
-    height: 48px;
+  .store-filters-lux__searchBox {
+    min-height: 50px;
+    border-radius: 18px;
+  }
+
+  .store-filters-lux__input {
+    height: 50px;
     font-size: 14px;
+    padding: 0 46px 0 14px;
   }
 
-  .store-filters-refined__chips {
+  .store-filters-lux__searchIcon {
+    right: 14px;
+  }
+
+  .store-filters-lux__chips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 2px;
   }
 
-  .store-filters-refined__chip {
-    white-space: nowrap;
+  .store-filters-lux__chip {
     min-height: 36px;
-    padding: 0 14px;
-    font-size: 12px;
+    font-size: 11px;
+    padding: 0 10px;
   }
 }
 .store-hero__title {
@@ -2355,30 +2019,6 @@ body {
   z-index: 1;
 }
 
-.sold-rail-band__head .featured-rail-section__kicker {
-  color: rgba(255, 255, 255, 0.58);
-}
-
-.sold-rail-band__head .featured-rail-section__title {
-  color: #fff;
-}
-
-.sold-rail-band__head .featured-rail-section__count {
-  color: rgba(255, 255, 255, 0.68);
-}
-
-.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.34);
-}
-
-.sold-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.48);
-}
-
 @media (max-width: 720px) {
   .sold-rail-band {
     padding: 18px 0;
@@ -2508,76 +2148,10 @@ body {
   color: #fff;
   background:
     linear-gradient(to top, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0.42)),
-    url("/featured-bg.jpg");
+    url("/f.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.featured-rail-band::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(8, 8, 8, 0.14);
-  pointer-events: none;
-}
-
-.featured-rail-band > * {
-  position: relative;
-  z-index: 1;
-}
-
-.featured-rail-band .featured-rail-section__head {
-  width: min(1400px, calc(100vw - 32px));
-  margin: 0 auto 14px;
-  padding: 0 16px;
-}
-
-.featured-rail-band .featured-rail-section__kicker {
-  color: rgba(255, 255, 255, 0.58);
-}
-
-.featured-rail-band .featured-rail-section__title {
-  color: #fff;
-}
-
-.featured-rail-band .featured-rail-section__count {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.featured-rail-band .featured-rail-section__all {
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.featured-rail-band .featured-rail-section__all:hover {
-  color: #fff;
-}
-
-.featured-rail-band .featured-rail-section__viewport {
-  padding: 0 16px 14px;
-  scrollbar-color: rgba(255, 255, 255, 0.34) rgba(255, 255, 255, 0.12);
-}
-
-.featured-rail-band .featured-rail-section__viewport::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-}
-
-.featured-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.34);
-  border-radius: 999px;
-}
-
-.featured-rail-band .featured-rail-section__viewport::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.48);
-}
-
-@media (max-width: 720px) {
-  .featured-rail-band {
-  padding: 12px 0;        
-  margin-top: 16px;       
-  margin-bottom: 16px;   
-}
 }
 /* ===== signed pieces background band ===== */
 
@@ -2596,7 +2170,7 @@ body {
 
   background:
     linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.45)),
-    url("/signed-bg.jpg"); /* ← غيري الصورة هنا */
+    url("/cover3.jpg"); /* ← غيري الصورة هنا */
 
   background-size: cover;
   background-position: center;
@@ -2631,4 +2205,147 @@ body {
   color: #fff !important;
   opacity: 1 !important;
   filter: none !important;
+}
+.store-ordered-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.store-ordered-grid .hoa-product-card,
+.store-ordered-grid .masonry-item {
+  display: block;
+  width: 100%;
+  break-inside: auto;
+  -webkit-column-break-inside: auto;
+  page-break-inside: auto;
+}
+
+@media (min-width: 1024px) {
+  .store-ordered-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .store-ordered-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.rare-signed-band__head--simple {
+  width: min(1400px, calc(100vw - 32px));
+  margin: 0 auto 10px;
+  padding: 0 16px;
+}
+
+.signed-rail-band--compact {
+  margin-top: 18px;
+  margin-bottom: 18px;
+  padding: 12px 0 8px;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.1)),
+    url("/signed.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.signed-rail-band--compact::before {
+  display: none;
+}
+
+.rare-signed-band__rail--compact {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 16px 0;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rare-signed-band__rail--compact::-webkit-scrollbar {
+  height: 8px;
+}
+
+.rare-signed-band__rail--compact::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.rare-signed-band__rail--compact::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+}
+
+.rare-signed-band__card--compact {
+  min-width: 185px;
+  max-width: 185px;
+  flex: 0 0 185px;
+}
+
+.rare-signed-band__media--compact {
+  position: relative;
+  height: 132px;
+  overflow: hidden;
+  border-radius: 15px;
+  background: #111;
+}
+
+.rare-signed-band__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rare-signed-band__content--below {
+  position: static;
+  inset: auto;
+  padding: 8px 2px 0;
+}
+
+.rare-signed-band__name--compact {
+  font-size: 0.9rem;
+  line-height: 1.48;
+  font-weight: 700;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rare-signed-band__kicker,
+.rare-signed-band__price {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .signed-rail-band--compact {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    padding: 10px 0 6px;
+  }
+
+  .rare-signed-band__title {
+    font-size: 1rem;
+  }
+
+  .rare-signed-band__card--compact {
+    min-width: 128px;
+    max-width: 128px;
+    flex-basis: 128px;
+  }
+
+  .rare-signed-band__media--compact {
+    height: 92px;
+    border-radius: 12px;
+  }
+
+  .rare-signed-band__name--compact {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
 }

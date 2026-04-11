@@ -33,7 +33,7 @@ export default function StoreShell({
         {hero}
 
         <section className="relative -mt-3 rounded-t-[2rem] border-t border-white/10 bg-[#0b0d10] text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:-mt-6 sm:rounded-t-[2.5rem]">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-7 lg:px-8 lg:pb-20">
+          <div className="mx-auto flex w-full max-w-[160px]7xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-7 lg:px-8 lg:pb-20">
             {filters}
             {categories}
             {featured}

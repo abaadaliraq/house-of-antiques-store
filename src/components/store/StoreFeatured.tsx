@@ -20,32 +20,22 @@ function getName(product: StoreProduct, locale: StoreLocale) {
   );
 }
 
-function formatPrice(value?: number | string | null, currency?: string | null) {
-  if (value === null || value === undefined || value === "") return "Price on request";
-  const numeric = typeof value === "string" ? Number(value) : value;
-  if (Number.isNaN(numeric)) return `${value} ${currency ?? ""}`.trim();
-  return `${numeric.toLocaleString()} ${currency ?? "IQD"}`;
-}
-
-export default function StoreFeatured({ products, locale }: StoreFeaturedProps) {
+export default function StoreFeatured({
+  products,
+  locale,
+}: StoreFeaturedProps) {
   if (!products.length) return null;
 
   return (
     <section id="featured" className="featured-rail-section featured-rail-band">
-      <div className="featured-rail-section__head">
-        <div>
-          <p className="featured-rail-section__kicker">
-            {locale === "ar" ? "مختارات مميزة" : locale === "ku" ? "هەڵبژاردەی تایبەت" : "Featured selection"}
-          </p>
-          <h2 className="featured-rail-section__title">
-            {locale === "ar" ? "القطع المميزة" : locale === "ku" ? "پارچە تایبەتەکان" : "Featured pieces"}
-          </h2>
-          <p className="featured-rail-section__count">{products.length} items</p>
-        </div>
-
-        <a href="#products" className="featured-rail-section__all">
-          {locale === "ar" ? "عرض الكل" : locale === "ku" ? "هەمووی ببینە" : "See all"}
-        </a>
+      <div className="featured-rail-section__head featured-rail-section__head--simple">
+        <h2 className="featured-rail-section__title">
+          {locale === "ar"
+            ? "القطع المميزة"
+            : locale === "ku"
+            ? "پارچە تایبەتەکان"
+            : "Featured pieces"}
+        </h2>
       </div>
 
       <div className="featured-rail-section__viewport">
@@ -58,9 +48,9 @@ export default function StoreFeatured({ products, locale }: StoreFeaturedProps) 
               <Link
                 key={product.id}
                 href={`/product/${product.slug}`}
-                className="featured-rail-card"
+                className="featured-rail-card featured-rail-card--compact"
               >
-                <div className="featured-rail-card__media">
+                <div className="featured-rail-card__media featured-rail-card__media--compact">
                   {image ? (
                     <img
                       src={image}
@@ -70,11 +60,12 @@ export default function StoreFeatured({ products, locale }: StoreFeaturedProps) 
                   ) : (
                     <div className="featured-rail-card__fallback">No image</div>
                   )}
-                  <div className="featured-rail-card__overlay" />
+                </div>
 
-                  <div className="featured-rail-card__content">
-                    <h3 className="featured-rail-card__name">{name}</h3>
-                  </div>
+                <div className="featured-rail-card__content featured-rail-card__content--below">
+                  <h3 className="featured-rail-card__name featured-rail-card__name--compact">
+                    {name}
+                  </h3>
                 </div>
               </Link>
             );

@@ -20,36 +20,13 @@ function getName(product: StoreProduct, locale: StoreLocale) {
   );
 }
 
-function formatPrice(value?: number | string | null, currency?: string | null) {
-  if (value === null || value === undefined || value === "")
-    return "Price on request";
-
-  const numeric = typeof value === "string" ? Number(value) : value;
-
-  if (Number.isNaN(numeric))
-    return `${value} ${currency ?? ""}`.trim();
-
-  return `${numeric.toLocaleString()} ${currency ?? "IQD"}`;
-}
-
 export default function StoreRareSignedRail({ products, locale }: Props) {
   if (!products.length) return null;
 
   return (
-    <section
-      id="signed"
-      className="rare-signed-band signed-rail-band"
-    >
+    <section id="signed" className="rare-signed-band signed-rail-band signed-rail-band--compact">
       <div className="rare-signed-band__inner">
-        <div className="rare-signed-band__head">
-          <p className="rare-signed-band__kicker">
-            {locale === "ar"
-              ? "منتقى خاص"
-              : locale === "ku"
-              ? "هەڵبژاردنی تایبەت"
-              : "Special selection"}
-          </p>
-
+        <div className="rare-signed-band__head rare-signed-band__head--simple">
           <h2 className="rare-signed-band__title">
             {locale === "ar"
               ? "أعمال موقعة نادرة"
@@ -59,7 +36,7 @@ export default function StoreRareSignedRail({ products, locale }: Props) {
           </h2>
         </div>
 
-        <div className="rare-signed-band__rail">
+        <div className="rare-signed-band__rail rare-signed-band__rail--compact">
           {products.map((product) => {
             const name = getName(product, locale);
             const image = product.featured_image?.trim() || "";
@@ -68,9 +45,9 @@ export default function StoreRareSignedRail({ products, locale }: Props) {
               <Link
                 key={product.id}
                 href={`/product/${product.slug}`}
-                className="rare-signed-band__card"
+                className="rare-signed-band__card rare-signed-band__card--compact"
               >
-                <div className="rare-signed-band__media">
+                <div className="rare-signed-band__media rare-signed-band__media--compact">
                   {image ? (
                     <img
                       src={image}
@@ -78,24 +55,13 @@ export default function StoreRareSignedRail({ products, locale }: Props) {
                       className="rare-signed-band__image"
                     />
                   ) : (
-                    <div className="rare-signed-band__fallback">
-                      No image
-                    </div>
+                    <div className="rare-signed-band__fallback">No image</div>
                   )}
+                </div>
 
-                  <div className="rare-signed-band__overlay" />
-
-                  <div className="rare-signed-band__content">
-                    <div className="rare-signed-band__name">
-                      {name}
-                    </div>
-
-                    <div className="rare-signed-band__price">
-                      {formatPrice(
-                        product.price_amount,
-                        product.currency_code
-                      )}
-                    </div>
+                <div className="rare-signed-band__content rare-signed-band__content--below">
+                  <div className="rare-signed-band__name rare-signed-band__name--compact">
+                    {name}
                   </div>
                 </div>
               </Link>

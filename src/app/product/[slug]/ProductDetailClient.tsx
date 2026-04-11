@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Eye, EyeOff } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ShoppingBag, Eye, EyeOff, ChevronRight, ChevronLeft } from 'lucide-react'
 import { formatPrice } from '../../../lib/format'
 import { addToCart, getCartCount } from '../../../lib/cart'
 import styles from './ProductPage.module.css'
@@ -79,12 +80,25 @@ type SimilarProductRow = {
   is_sensitive?: boolean | null
 }
 
+type ProductNavItem = {
+  id: string
+  slug: string
+  name_ar: string | null
+  name_en: string | null
+  name_ku: string | null
+  featured_image: string | null
+  status: string | null
+  is_available: boolean | null
+}
+
 type Props = {
   product: ProductRow
   gallery: ProductImageRow[]
   closeMatches: SimilarProductRow[]
   styleMatches: SimilarProductRow[]
   extendedMatches: SimilarProductRow[]
+  prevProduct?: ProductNavItem | null
+  nextProduct?: ProductNavItem | null
 }
 
 const FAVORITES_KEY = 'hoa_favorites_v1'
@@ -165,7 +179,11 @@ export default function ProductDetailClient({
   closeMatches,
   styleMatches,
   extendedMatches,
+  prevProduct,
+  nextProduct,
 }: Props) {
+  const router = useRouter()
+
   const [lang, setLang] = useState<StoreLang>('ar')
   const [activeIndex, setActiveIndex] = useState(0)
   const [favorite, setFavorite] = useState(false)
@@ -306,6 +324,10 @@ export default function ProductDetailClient({
           : 'Sensitive content',
       image:
         lang === 'ar' ? 'صورة' : lang === 'ku' ? 'وێنە' : 'Image',
+      previous:
+        lang === 'ar' ? 'السابق' : lang === 'ku' ? 'پێشوو' : 'Previous',
+      next:
+        lang === 'ar' ? 'التالي' : lang === 'ku' ? 'داهاتوو' : 'Next',
     }),
     [lang]
   )
@@ -429,12 +451,20 @@ export default function ProductDetailClient({
   }
 
   function handleBack() {
-    if (window.history.length > 1) {
-      window.history.back()
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
       return
     }
-    window.location.href = '/'
+    router.push('/')
   }
+
+  const prevTitle = prevProduct
+    ? pickLang(prevProduct.name_ar, prevProduct.name_en, prevProduct.name_ku, lang)
+    : ''
+
+  const nextTitle = nextProduct
+    ? pickLang(nextProduct.name_ar, nextProduct.name_en, nextProduct.name_ku, lang)
+    : ''
 
   return (
     <main className={styles.page} dir={lang === 'en' ? 'ltr' : 'rtl'}>
@@ -523,6 +553,38 @@ export default function ProductDetailClient({
                 ) : null}
               </div>
             </div>
+
+            {(prevProduct || nextProduct) ? (
+              <div className={styles.productNavArrows}>
+                {nextProduct ? (
+                  <Link
+                    href={`/product/${nextProduct.slug}`}
+                    className={styles.productNavArrow}
+                    aria-label={t.next}
+                    title={nextTitle}
+                  >
+                    <ChevronRight size={18} />
+                    <span className={styles.productNavText}>{nextTitle}</span>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+
+                {prevProduct ? (
+                  <Link
+                    href={`/product/${prevProduct.slug}`}
+                    className={styles.productNavArrow}
+                    aria-label={t.previous}
+                    title={prevTitle}
+                  >
+                    <span className={styles.productNavText}>{prevTitle}</span>
+                    <ChevronLeft size={18} />
+                  </Link>
+                ) : (
+                  <div />
+                )}
+              </div>
+            ) : null}
 
             {gallery.length > 1 ? (
               <div className={styles.thumbRail}>
