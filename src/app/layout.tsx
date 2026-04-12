@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import {
   Cormorant_Garamond,
   Cairo,
@@ -43,10 +44,11 @@ export default function RootLayout({
       dir="rtl"
       className={`${displayEn.variable} ${bodyAr.variable} ${bodyEn.variable}`}
     >
-      <body className="font-sans bg-[#070809] text-[#f5f1ea]">
-        
-        {children}
-      </body>
+    <body>
+  {children}
+
+  <GoogleAnalytics gaId="G-S7QWQ5SPMM" />
+</body>
     </html>
   );
 }
