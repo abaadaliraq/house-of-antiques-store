@@ -37,7 +37,6 @@ const FIXED_CATEGORIES = [
   "crystal",
   "vases",
 ] as const;
-
 const ARTIST_SECTIONS = [
   {
     key: "fouad",
@@ -125,6 +124,14 @@ const ARTIST_SECTIONS = [
       ar: "لوحات غير موقعة",
       en: "Unsigned Paintings",
       ku: "تابلۆی بێ واژۆ",
+    },
+  },
+  {
+    key: "unknown1",
+    label: {
+      ar: "أعمال فنان غير معروف",
+      en: "Unknown Artist",
+      ku: "هونەرمەند نەناسراو",
     },
   },
 ] as const;
@@ -227,6 +234,16 @@ function isSoldProduct(product: StoreProduct) {
 function normalizeArtistKey(value?: string | null) {
   const raw = normalizeText(value);
 
+  if (
+    raw === "artist_x" ||
+    raw.includes("artist_x") ||
+    raw.includes("unknown") ||
+    raw.includes("غير معروف") ||
+    raw.includes("توقيع غير واضح")
+  ) {
+    return "unknown1";
+  }
+
   if (!raw) return "unsigned";
 
   if (
@@ -265,9 +282,6 @@ function normalizeArtistKey(value?: string | null) {
     return "talib";
   }
 
-  if (raw.includes("سعد") || raw.includes("saad")) {
-    return "saad";
-  }
 
   if (
     raw.includes("سعيد") ||
@@ -276,6 +290,10 @@ function normalizeArtistKey(value?: string | null) {
     raw.includes("said")
   ) {
     return "saeed";
+  }
+  
+  if (raw.includes("سعد") || raw.includes("saad")) {
+    return "saad";
   }
 
   if (
@@ -334,6 +352,7 @@ function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
     salman: [],
     ali: [],
     hussein: [],
+    unknown1: [],
     unsigned: [],
   };
 
@@ -351,7 +370,6 @@ function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
 
   return groups;
 }
-
 export default function StoreHomeView({ products }: StoreHomeViewProps) {
   const [locale, setLocale] = useState<StoreLocale>("ar");
   const [mounted, setMounted] = useState(false);
