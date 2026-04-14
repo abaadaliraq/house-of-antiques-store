@@ -111,11 +111,11 @@ const ARTIST_SECTIONS = [
     },
   },
   {
-   key: "hussein_faisal",
-  label: {
-    ar: "أعمال حسين فيصل",
-    en: "Hussein Faisal",
-    ku: "حسین فیصل",
+    key: "hussein_faisal",
+    label: {
+      ar: "أعمال حسين فيصل",
+      en: "Hussein Faisal",
+      ku: "حسین فیصل",
     },
   },
   {
@@ -124,6 +124,14 @@ const ARTIST_SECTIONS = [
       ar: "أعمال حسين العزاوي",
       en: "Hussein Al-Azzawi",
       ku: "حسێن العزاوی",
+    },
+  },
+  {
+    key: "ansari",
+    label: {
+      ar: "أعمال محمد الأنصاري",
+      en: "Mohammad Al-Ansari",
+      ku: "محمد الأنصاري",
     },
   },
   {
@@ -152,7 +160,10 @@ function mapCategoryToSlug(value?: string | null) {
   const raw = normalizeText(value);
 
   if (!raw) return "other";
-  if (raw.includes("فضة") || raw.includes("silver")) return "silver";
+
+  if (raw.includes("فضة") || raw.includes("silver")) {
+    return "silver";
+  }
 
   if (
     raw.includes("اكسسو") ||
@@ -163,8 +174,13 @@ function mapCategoryToSlug(value?: string | null) {
     return "accessories";
   }
 
-  if (raw.includes("نحاس") || raw.includes("copper")) return "copper";
-  if (raw.includes("سجاد") || raw.includes("carpet")) return "carpets";
+  if (raw.includes("نحاس") || raw.includes("copper")) {
+    return "copper";
+  }
+
+  if (raw.includes("سجاد") || raw.includes("carpet")) {
+    return "carpets";
+  }
 
   if (
     raw.includes("اعمال فنية") ||
@@ -190,8 +206,13 @@ function mapCategoryToSlug(value?: string | null) {
     return "furniture";
   }
 
-  if (raw.includes("خشب") || raw.includes("wood")) return "wood";
-  if (raw.includes("كريستال") || raw.includes("crystal")) return "crystal";
+  if (raw.includes("خشب") || raw.includes("wood")) {
+    return "wood";
+  }
+
+  if (raw.includes("كريستال") || raw.includes("crystal")) {
+    return "crystal";
+  }
 
   if (
     raw.includes("فازات") ||
@@ -341,7 +362,13 @@ function normalizeArtistKey(value?: string | null) {
   ) {
     return "hussein_faisal";
   }
-
+if (
+  (raw.includes("محمد") && raw.includes("انصاري")) ||
+  raw.includes("الأنصاري") ||
+  raw.includes("ansari")
+) {
+  return "ansari";
+}
   if (
     raw.includes("حسين العزاوي") ||
     raw.includes("حسین العزاوي") ||
@@ -372,6 +399,7 @@ function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
     hussein_azzawi: [],
     unknown1: [],
     unsigned: [],
+    ansari: [],
   };
 
   for (const product of products) {
@@ -537,7 +565,7 @@ export default function StoreHomeView({ products }: StoreHomeViewProps) {
       (product) => product.is_featured === true
     );
 
-    if (explicit.length >= 6) return explicit.slice(0, 12);
+    if (explicit.length >= 6) return explicit.slice(0, 60);
 
     const merged = [...explicit];
 
