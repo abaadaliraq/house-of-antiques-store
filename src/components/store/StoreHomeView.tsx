@@ -111,7 +111,15 @@ const ARTIST_SECTIONS = [
     },
   },
   {
-    key: "hussein",
+   key: "hussein_faisal",
+  label: {
+    ar: "أعمال حسين فيصل",
+    en: "Hussein Faisal",
+    ku: "حسین فیصل",
+    },
+  },
+  {
+    key: "hussein_azzawi",
     label: {
       ar: "أعمال حسين العزاوي",
       en: "Hussein Al-Azzawi",
@@ -282,7 +290,6 @@ function normalizeArtistKey(value?: string | null) {
     return "talib";
   }
 
-
   if (
     raw.includes("سعيد") ||
     raw.includes("سعید") ||
@@ -291,7 +298,7 @@ function normalizeArtistKey(value?: string | null) {
   ) {
     return "saeed";
   }
-  
+
   if (raw.includes("سعد") || raw.includes("saad")) {
     return "saad";
   }
@@ -327,14 +334,24 @@ function normalizeArtistKey(value?: string | null) {
   }
 
   if (
-    raw.includes("حسين") ||
-    raw.includes("العزاوي") ||
-    raw.includes("hussein") ||
-    raw.includes("hussain") ||
-    raw.includes("azzawi") ||
-    raw.includes("azawi")
+    raw.includes("حسين فيصل") ||
+    raw.includes("حسین فیصل") ||
+    raw.includes("hussein faisal") ||
+    raw.includes("hussain faisal")
   ) {
-    return "hussein";
+    return "hussein_faisal";
+  }
+
+  if (
+    raw.includes("حسين العزاوي") ||
+    raw.includes("حسین العزاوي") ||
+    raw.includes("العزاوي") ||
+    raw.includes("azzawi") ||
+    raw.includes("azawi") ||
+    raw.includes("hussein al-azzawi") ||
+    raw.includes("hussain al-azzawi")
+  ) {
+    return "hussein_azzawi";
   }
 
   return "unsigned";
@@ -351,7 +368,8 @@ function groupPaintingsByArtist(products: ExtendedStoreProduct[]) {
     hani: [],
     salman: [],
     ali: [],
-    hussein: [],
+    hussein_faisal: [],
+    hussein_azzawi: [],
     unknown1: [],
     unsigned: [],
   };
